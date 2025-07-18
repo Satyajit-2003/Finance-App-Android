@@ -27,4 +27,5 @@
     <string name="stats_header_amount">Amount</string>
     <string name="stats_header_count">Count</string>
     <string name="stats_item_amount">₹%.2f</string>
+    <string name="settings_page_note">⚠️This doesn\'t validate the API key. Look for 403 Error in Notification for invalid API Key.</string>
 </resources>

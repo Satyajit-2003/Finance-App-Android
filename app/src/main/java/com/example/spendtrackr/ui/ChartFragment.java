@@ -44,7 +44,7 @@ public class ChartFragment extends Fragment {
 
     private StatsResponse.Data cachedStats = null;
     private long lastFetchTime = 0;
-    private static final long CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+    private static final long CACHE_DURATION_MS = 60 * 1000; // 1 minute
 
 
     @Override
@@ -188,8 +188,9 @@ public class ChartFragment extends Fragment {
         totalTransactionsTextView.setText(getString(R.string.total_transactions_text, stats.transactionCount));
 
         if (uncategorizedCount > 0) {
-            Log.d("uncategorized count", String.valueOf(uncategorizedCount));
             notCategorizedWarningTextView.setText(getString(R.string.not_categorizedWarning_text, uncategorizedCount));
+        } else {
+            notCategorizedWarningTextView.setText("");
         }
 
         summaryRecyclerView.setAdapter(new CategorySummaryAdapter(summaryItems));

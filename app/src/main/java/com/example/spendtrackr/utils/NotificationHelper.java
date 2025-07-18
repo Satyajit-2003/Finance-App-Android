@@ -1,0 +1,55 @@
+package com.example.spendtrackr.utils;
+
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+
+import com.example.spendtrackr.R;
+
+public class NotificationHelper {
+
+    private static final String CHANNEL_ID = "api_error_channel";
+    private static final String CHANNEL_NAME = "API Error Alerts";
+    private static final String CHANNEL_DESC = "Notifies when API calls fail";
+
+    public static void showErrorNotification(Context context, String title, String message) {
+        createChannelIfNeeded(context);
+
+        if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted — you can choose to show a toast or silently fail
+            return;
+        }
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setPriority(NotificationCompat.PRIORITY_HIGH);
+
+        NotificationManagerCompat.from(context).notify((int) System.currentTimeMillis(), builder.build());
+    }
+
+
+    private static void createChannelIfNeeded(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    CHANNEL_ID,
+                    CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            channel.setDescription(CHANNEL_DESC);
+
+            NotificationManager manager = context.getSystemService(NotificationManager.class);
+            if (manager != null) {
+                manager.createNotificationChannel(channel);
+            }
+        }
+    }
+}

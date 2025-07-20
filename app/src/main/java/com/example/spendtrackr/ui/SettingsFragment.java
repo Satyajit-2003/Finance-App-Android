@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import com.example.spendtrackr.R;
 import com.example.spendtrackr.api.ApiService;
 import com.example.spendtrackr.api.ApiClient;
+import com.example.spendtrackr.api.BaseResponse;
 import com.example.spendtrackr.api.HealthResponse;
 import com.example.spendtrackr.utils.SharedPrefHelper;
 
@@ -82,26 +83,24 @@ public class SettingsFragment extends Fragment {
         apiStatusText.setText(R.string.api_status_checking);
         apiStatusText.setTextColor(getResources().getColor(R.color.yellow, null));
         ApiService apiService = ApiClient.getApiService(requireContext());
-        apiService.getHealth().enqueue(new Callback<HealthResponse>() {
+        apiService.getHealth().enqueue(new Callback<BaseResponse<HealthResponse>>() {
             @Override
-            public void onResponse(@NonNull Call<HealthResponse> call, @NonNull Response<HealthResponse> response) {
+            public void onResponse(@NonNull Call<BaseResponse<HealthResponse>> call, @NonNull Response<BaseResponse<HealthResponse>> response) {
                 if (response.isSuccessful() && response.body() != null &&
-                        "healthy".equalsIgnoreCase(response.body().getStatus())) {
+                        "healthy".equalsIgnoreCase(response.body().data.getStatus())) {
                     apiStatusText.setText(R.string.api_status_healthy);
                     apiStatusText.setTextColor(getResources().getColor(R.color.green, null));
-
                 } else {
                     apiStatusText.setText(R.string.api_status_unhealthy);
                     apiStatusText.setTextColor(getResources().getColor(R.color.red, null));
-
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<HealthResponse> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<BaseResponse<HealthResponse>> call, @NonNull Throwable t) {
                 apiStatusText.setText(R.string.api_status_unhealthy);
             }
+
         });
     }
-
 }

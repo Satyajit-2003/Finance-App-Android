@@ -4,26 +4,18 @@ import com.google.gson.annotations.SerializedName;
 import java.util.Map;
 
 public class StatsResponse {
-    @SerializedName("success")
-    public boolean success;
 
-    @SerializedName("data")
-    public Data data;
+    @SerializedName("month_year")
+    public String monthYear;
 
-    public static class Data {
-        @SerializedName("month_year")
-        public String monthYear;
+    @SerializedName("total_spend")
+    public double totalSpend;
 
-        @SerializedName("total_spend")
-        public double totalSpend;
+    @SerializedName("transaction_count")
+    public int transactionCount;
 
-        @SerializedName("transaction_count")
-        public int transactionCount;
-
-        @SerializedName("categories")
-        public Map<String, CategoryInfo> categories;
-
-    }
+    @SerializedName("categories")
+    public Map<String, CategoryInfo> categories;
 
     public static class CategoryInfo {
         @SerializedName("amount")

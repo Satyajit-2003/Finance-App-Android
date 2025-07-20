@@ -5,18 +5,19 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
 
 import java.util.Map;
 
 public interface ApiService {
 
     @POST("/api/v1/log")
-    Call<ResponseBody> logTransaction(@Body Map<String, Object> body);
+    Call<BaseResponse<Void>> logTransaction(@Body Map<String, Object> body);
 
-    @GET("/api/v1/stats")
-    Call<StatsResponse> getStats();
+    @GET("/api/v1/stats/{monthYear}")
+    Call<BaseResponse<StatsResponse>> getStats(@Path("monthYear") String monthYear);
 
     @GET("health")
-    Call<HealthResponse> getHealth();
+    Call<BaseResponse<HealthResponse>> getHealth();
 
 }

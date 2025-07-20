@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 
 import com.example.spendtrackr.api.ApiClient;
 import com.example.spendtrackr.api.ApiService;
+import com.example.spendtrackr.api.BaseResponse;
 import com.example.spendtrackr.utils.NotificationHelper;
 
 import java.text.SimpleDateFormat;
@@ -67,22 +68,24 @@ public class SmsReceiver extends BroadcastReceiver {
         body.put("date", isoDate);
         Log.i("SMSReceiver", "Sending to API, " + isoDate + messageBody);
 
-        apiService.logTransaction(body).enqueue(new Callback<ResponseBody>() {
+        apiService.logTransaction(body).enqueue(new Callback<BaseResponse<Void>>() {
             @Override
-            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                if (!response.isSuccessful()) {
+            public void onResponse(@NonNull Call<BaseResponse<Void>> call, @NonNull Response<BaseResponse<Void>> response) {
+                String apiMessage = response.body() != null ? response.body().message : response.message();
+                if (!response.isSuccessful() || response.body() == null) {
                     Log.e(TAG, "API Error Code: " + response.code());
-                    NotificationHelper.showErrorNotification(context, "API Error logTransaction", "Code: " + response.code());
-                } else{
-                    NotificationHelper.showErrorNotification(context, "API Success logTransaction", "Code: " + response.code());
+                    NotificationHelper.showErrorNotification(context, "logTransaction Code: " + response.code(), apiMessage);
+                } else {
+                    NotificationHelper.showErrorNotification(context, "logTransaction Success", apiMessage);
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<BaseResponse<Void>> call, @NonNull Throwable t) {
                 Log.e(TAG, "API Call Failed: " + t.getMessage());
                 NotificationHelper.showErrorNotification(context, "API Failure logTransaction", t.getMessage());
             }
         });
+
     }
 }

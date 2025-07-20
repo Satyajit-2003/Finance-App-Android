@@ -18,6 +18,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.spendtrackr.R;
 import com.example.spendtrackr.api.ApiClient;
 import com.example.spendtrackr.api.ApiService;
+import com.example.spendtrackr.api.BaseResponse;
 import com.example.spendtrackr.api.StatsResponse;
 import com.example.spendtrackr.utils.NotificationHelper;
 import com.github.mikephil.charting.charts.PieChart;
@@ -27,9 +28,12 @@ import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import retrofit2.Call;
@@ -42,7 +46,7 @@ public class ChartFragment extends Fragment {
         // Required empty public constructor
     }
 
-    private StatsResponse.Data cachedStats = null;
+    private StatsResponse cachedStats = null;
     private long lastFetchTime = 0;
     private static final long CACHE_DURATION_MS = 60 * 1000; // 1 minute
 
@@ -135,10 +139,13 @@ public class ChartFragment extends Fragment {
 
         swipeRefreshLayout.setRefreshing(true);
 
+        SimpleDateFormat sdf = new SimpleDateFormat("MMMM-yyyy", Locale.getDefault());
+        String currentMonthYear = sdf.format(new Date());
+
         ApiService apiService = ApiClient.getApiService(requireContext());
-        apiService.getStats().enqueue(new Callback<StatsResponse>() {
+        apiService.getStats(currentMonthYear).enqueue(new Callback<BaseResponse<StatsResponse>>() {
             @Override
-            public void onResponse(@NonNull Call<StatsResponse> call, @NonNull Response<StatsResponse> response) {
+            public void onResponse(@NonNull Call<BaseResponse<StatsResponse>> call, @NonNull Response<BaseResponse<StatsResponse>> response) {
                 swipeRefreshLayout.setRefreshing(false);
 
                 if (response.isSuccessful() && response.body() != null && response.body().success) {
@@ -147,20 +154,22 @@ public class ChartFragment extends Fragment {
                     displayStats(amountPieChart, countPieChart, summaryTextView, totalSpendsTextView, totalTransactionsTextView,
                             notCategorizedWarningTextView, summaryRecyclerView, cachedStats);
                 } else {
-                    NotificationHelper.showErrorNotification(requireContext(), "API Error getStats", "Code: " + response.code());
+                    String apiMessage = response.body() != null ? response.body().message : response.message();
+                    NotificationHelper.showErrorNotification(requireContext(), "getStats Code: " + response.code(), apiMessage);
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<StatsResponse> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<BaseResponse<StatsResponse>> call, @NonNull Throwable t) {
                 swipeRefreshLayout.setRefreshing(false);
                 NotificationHelper.showErrorNotification(requireContext(), "API Failure getStats", t.getMessage());
             }
         });
+
     }
 
     private void displayStats(PieChart amountPieChart, PieChart countPieChart, TextView summaryTextView, TextView totalSpendsTextView,
-                              TextView totalTransactionsTextView, TextView notCategorizedWarningTextView, RecyclerView summaryRecyclerView, StatsResponse.Data stats) {
+                              TextView totalTransactionsTextView, TextView notCategorizedWarningTextView, RecyclerView summaryRecyclerView, StatsResponse stats) {
         Map<String, Float> amountData = new HashMap<>();
         Map<String, Float> countData = new HashMap<>();
         List<CategorySummaryAdapter.CategorySummaryItem> summaryItems = new ArrayList<>();

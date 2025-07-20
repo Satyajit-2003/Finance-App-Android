@@ -1,12 +1,15 @@
 package com.example.spendtrackr.ui;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.graphics.Color;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,9 +30,15 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 
+import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -42,13 +51,26 @@ import retrofit2.Response;
 
 public class ChartFragment extends Fragment {
 
+    // Inner Private class to store Cache Entries
+    private static class StatsCacheEntry {
+        StatsResponse statsResponse;
+        long fetchTime;
+
+        StatsCacheEntry(StatsResponse statsResponse, long fetchTime) {
+            this.statsResponse = statsResponse;
+            this.fetchTime = fetchTime;
+        }
+    }
+
+
     public ChartFragment() {
         // Required empty public constructor
     }
 
-    private StatsResponse cachedStats = null;
-    private long lastFetchTime = 0;
+    private final Map<String, StatsCacheEntry> statsCacheMap = new HashMap<>();
     private static final long CACHE_DURATION_MS = 60 * 1000; // 1 minute
+    private String currentMonthYear = null;
+
 
 
     @Override
@@ -70,14 +92,24 @@ public class ChartFragment extends Fragment {
         TextView totalTransactionsTextView = view.findViewById(R.id.totalTransactionsText);
         TextView notCategorizedWarningTextView = view.findViewById(R.id.notCategorizedWarningText);
         RecyclerView summaryRecyclerView = view.findViewById(R.id.summaryRecyclerView);
+        MaterialCardView monthYearSelectorCard = view.findViewById(R.id.monthYearSelectorCard);
 
         summaryRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        swipeRefreshLayout.setOnRefreshListener(() -> fetchAndDisplayStats(amountPieChart, countPieChart, swipeRefreshLayout, summaryTextView,
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MMMM-yyyy", Locale.getDefault());
+        currentMonthYear = sdf.format(new Date());
+
+        swipeRefreshLayout.setOnRefreshListener(() -> fetchAndDisplayStats(currentMonthYear, amountPieChart, countPieChart, swipeRefreshLayout, summaryTextView,
                 totalSpendsTextView, totalTransactionsTextView, notCategorizedWarningTextView, summaryRecyclerView));
 
+        monthYearSelectorCard.setOnClickListener(v -> {
+            showMonthYearPicker(amountPieChart, countPieChart, swipeRefreshLayout, summaryTextView,
+                    totalSpendsTextView, totalTransactionsTextView, notCategorizedWarningTextView, summaryRecyclerView);
+        });
+
         // Fetch only once on view created
-        fetchAndDisplayStats(amountPieChart, countPieChart, swipeRefreshLayout, summaryTextView,
+        fetchAndDisplayStats(currentMonthYear, amountPieChart, countPieChart, swipeRefreshLayout, summaryTextView,
                 totalSpendsTextView, totalTransactionsTextView, notCategorizedWarningTextView, summaryRecyclerView);
     }
 
@@ -124,23 +156,22 @@ public class ChartFragment extends Fragment {
     }
 
 
-    private void fetchAndDisplayStats(PieChart amountPieChart, PieChart countPieChart, SwipeRefreshLayout swipeRefreshLayout, TextView summaryTextView,
+    private void fetchAndDisplayStats(String currentMonthYear, PieChart amountPieChart, PieChart countPieChart, SwipeRefreshLayout swipeRefreshLayout, TextView summaryTextView,
                                       TextView totalSpendsTextView, TextView totalTransactionsTextView, TextView notCategorizedWarningTextView, RecyclerView summaryRecyclerView) {
+        StatsCacheEntry cacheEntry = statsCacheMap.get(currentMonthYear);
         long now = System.currentTimeMillis();
-        if (cachedStats != null && (now - lastFetchTime) < CACHE_DURATION_MS) {
-            // If cache is valid, display cached data and return
+
+        if (cacheEntry != null && (now - cacheEntry.fetchTime) < CACHE_DURATION_MS) {
             swipeRefreshLayout.setRefreshing(false);
-            Log.i("fetchAndDisplayStats", "Using Cache");
-            displayStats(amountPieChart, countPieChart, summaryTextView, totalSpendsTextView, totalTransactionsTextView,
-                    notCategorizedWarningTextView,summaryRecyclerView, cachedStats);
+            Log.i("fetchAndDisplayStats", "Using Cache for " + currentMonthYear);
+            displayStats(amountPieChart, countPieChart, summaryTextView, totalSpendsTextView,
+                    totalTransactionsTextView, notCategorizedWarningTextView, summaryRecyclerView, cacheEntry.statsResponse);
             return;
         }
+
         Log.i("fetchAndDisplayStats", "Making Fresh API calls");
 
         swipeRefreshLayout.setRefreshing(true);
-
-        SimpleDateFormat sdf = new SimpleDateFormat("MMMM-yyyy", Locale.getDefault());
-        String currentMonthYear = sdf.format(new Date());
 
         ApiService apiService = ApiClient.getApiService(requireContext());
         apiService.getStats(currentMonthYear).enqueue(new Callback<BaseResponse<StatsResponse>>() {
@@ -149,10 +180,12 @@ public class ChartFragment extends Fragment {
                 swipeRefreshLayout.setRefreshing(false);
 
                 if (response.isSuccessful() && response.body() != null && response.body().success) {
-                    cachedStats = response.body().data;
-                    lastFetchTime = System.currentTimeMillis();
+                    StatsResponse freshStatsResponse = response.body().data;
+                    // Caching
+                    statsCacheMap.put(currentMonthYear, new StatsCacheEntry(freshStatsResponse, now));
+
                     displayStats(amountPieChart, countPieChart, summaryTextView, totalSpendsTextView, totalTransactionsTextView,
-                            notCategorizedWarningTextView, summaryRecyclerView, cachedStats);
+                            notCategorizedWarningTextView, summaryRecyclerView, freshStatsResponse);
                 } else {
                     String apiMessage = response.body() != null ? response.body().message : response.message();
                     NotificationHelper.showErrorNotification(requireContext(), "getStats Code: " + response.code(), apiMessage);
@@ -175,6 +208,9 @@ public class ChartFragment extends Fragment {
         List<CategorySummaryAdapter.CategorySummaryItem> summaryItems = new ArrayList<>();
         int uncategorizedCount = 0;
 
+        // Add for header:
+        summaryItems.add(new CategorySummaryAdapter.CategorySummaryItem("Header", 0.0, 0));
+
         for (Map.Entry<String, StatsResponse.CategoryInfo> entry : stats.categories.entrySet()) {
             String category = entry.getKey();
             if ("Select".equalsIgnoreCase(category)) {
@@ -189,6 +225,7 @@ public class ChartFragment extends Fragment {
         }
 
         summaryTextView.setText(getString(R.string.summary_header, stats.monthYear));
+        currentMonthYear = stats.monthYear;
 
         setupPieChartWithOthers(amountPieChart, amountData, (float) stats.totalSpend, "Amount by Category");
         setupPieChartWithOthers(countPieChart, countData, stats.transactionCount,"Count by Category");
@@ -202,9 +239,95 @@ public class ChartFragment extends Fragment {
             notCategorizedWarningTextView.setText("");
         }
 
-        summaryRecyclerView.setAdapter(new CategorySummaryAdapter(summaryItems));
+        if (summaryItems.size() > 1){
+            summaryRecyclerView.setAdapter(new CategorySummaryAdapter(summaryItems));
+        } else {
+            List<CategorySummaryAdapter.CategorySummaryItem> itemList = new ArrayList<>();
+            summaryRecyclerView.setAdapter(new CategorySummaryAdapter(itemList));
+            notCategorizedWarningTextView.setText( notCategorizedWarningTextView.getText() +
+                    getString(R.string.no_transaction_or_sheet_Warning, stats.monthYear));
+        }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
+    private void showMonthYearPicker(
+            PieChart amountPieChart, PieChart countPieChart, SwipeRefreshLayout swipeRefreshLayout,
+            TextView summaryTextView, TextView totalSpendsTextView, TextView totalTransactionsTextView,
+            TextView notCategorizedWarningTextView, RecyclerView summaryRecyclerView) {
+
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        View dialogView = inflater.inflate(R.layout.month_year_picker_dialog, null);
+
+        MaterialAutoCompleteTextView monthDropdown = dialogView.findViewById(R.id.spinner_month);
+        MaterialAutoCompleteTextView yearDropdown = dialogView.findViewById(R.id.spinner_year);
+
+        // Populate months
+        String[] months = new DateFormatSymbols().getMonths();
+        List<String> monthList = new ArrayList<>(Arrays.asList(months).subList(0, 12));
+        ArrayAdapter<String> monthAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, monthList);
+        monthDropdown.setAdapter(monthAdapter);
+
+        // Populate years (current year to last 10 years)
+        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+        List<String> yearList = new ArrayList<>();
+        for (int i = currentYear; i >= currentYear - 10; i--) {
+            yearList.add(String.valueOf(i));
+        }
+        ArrayAdapter<String> yearAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, yearList);
+        yearDropdown.setAdapter(yearAdapter);
+
+        // Disable keyboard for month dropdown
+        monthDropdown.setInputType(0);
+        monthDropdown.setKeyListener(null);
+        monthDropdown.setFocusable(false);
+        monthDropdown.setOnTouchListener((v, event) -> {
+            monthDropdown.showDropDown();
+            return false;
+        });
+
+        // Disable keyboard for year dropdown
+        yearDropdown.setInputType(0);
+        yearDropdown.setKeyListener(null);
+        yearDropdown.setFocusable(false);
+        yearDropdown.setOnTouchListener((v, event) -> {
+            yearDropdown.showDropDown();
+            return false;
+        });
+
+
+        // Preselect current month and year
+        monthDropdown.setText(monthList.get(Calendar.getInstance().get(Calendar.MONTH)), false);
+        yearDropdown.setText(String.valueOf(currentYear), false);
+
+        // Show Dialog
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Select Month & Year")
+                .setView(dialogView)
+                .setPositiveButton("OK", (dialog, which) -> {
+                    String selectedMonthName = monthDropdown.getText().toString();
+                    String selectedYearText = yearDropdown.getText().toString();
+
+                    if (selectedMonthName.isEmpty() || selectedYearText.isEmpty()) {
+                        Toast.makeText(requireContext(), "Please select both month and year", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    int selectedMonth = monthList.indexOf(selectedMonthName);  // 0-based index
+                    int selectedYear = Integer.parseInt(selectedYearText);
+
+                    Calendar selectedDate = Calendar.getInstance();
+                    selectedDate.set(Calendar.MONTH, selectedMonth);
+                    selectedDate.set(Calendar.YEAR, selectedYear);
+
+                    String selectedMonthYear = new SimpleDateFormat("MMMM-yyyy", Locale.getDefault()).format(selectedDate.getTime());
+
+                    fetchAndDisplayStats(selectedMonthYear, amountPieChart, countPieChart, swipeRefreshLayout, summaryTextView,
+                            totalSpendsTextView, totalTransactionsTextView, notCategorizedWarningTextView, summaryRecyclerView);
+
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
 
 
 }

@@ -4,6 +4,7 @@
     <string name="total_spends_text">Total Spends: ₹%1$.2f</string>
     <string name="total_transactions_text">Total Transactions: %1$d</string>
     <string name="not_categorizedWarning_text">\n⚠️ %1$d transaction(s) uncategorized in Excel</string>
+    <string name="no_transaction_or_sheet_Warning">\n⚠️ No transaction found for %1$s</string>
 
     <string name="summary_header_placeholder">Summary</string>
     <string name="total_spends_text_placeholder">Total Spends: …</string>

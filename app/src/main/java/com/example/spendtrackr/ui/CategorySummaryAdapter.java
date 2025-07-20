@@ -1,5 +1,6 @@
 package com.example.spendtrackr.ui;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.spendtrackr.R;
 
 import java.util.List;
+import java.util.Locale;
 
 public class CategorySummaryAdapter extends RecyclerView.Adapter<CategorySummaryAdapter.ViewHolder> {
 
@@ -44,6 +46,7 @@ public class CategorySummaryAdapter extends RecyclerView.Adapter<CategorySummary
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         if (position == 0) {
             // Static Header Row
+            Log.d("Category Summary", "Header");
             holder.categoryNameText.setText(R.string.stats_header_category);
             holder.amountText.setText(R.string.stats_header_amount);
             holder.countText.setText(R.string.stats_header_count);
@@ -51,10 +54,11 @@ public class CategorySummaryAdapter extends RecyclerView.Adapter<CategorySummary
             holder.amountText.setTypeface(null, android.graphics.Typeface.BOLD);
             holder.countText.setTypeface(null, android.graphics.Typeface.BOLD);
         } else {
-            CategorySummaryItem item = items.get(position - 1);
+            CategorySummaryItem item = items.get(position);
             holder.categoryNameText.setText(item.categoryName);
-            holder.amountText.setText(String.format("₹%.2f", item.amount));
-            holder.countText.setText(String.format("%dx", item.count));
+            holder.amountText.setText(String.format(Locale.ENGLISH,"₹%.2f", item.amount));
+            holder.countText.setText(String.format(Locale.ENGLISH, "%dx", item.count));
+            Log.d("Category Summary", "Category: " + holder.categoryNameText);
         }
     }
 

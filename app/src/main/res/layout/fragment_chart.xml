@@ -17,14 +17,42 @@
             android:orientation="vertical"
             android:gravity="center_horizontal">
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/summaryTextView"
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/monthYearSelectorCard"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/summary_header_placeholder"
-                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="8dp"
+                android:layout_gravity="center_horizontal"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeColor="@color/md_theme_onPrimaryContainer"
+                app:strokeWidth="1dp">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/summaryTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:text="@string/summary_header_placeholder"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                    android:textColor="@color/md_theme_onPrimary"
+                    android:drawableEnd="@drawable/expand_more"
+                    android:drawablePadding="8dp" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/notCategorizedWarningText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="@color/yellow"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="16dp"/>
+
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -87,16 +115,6 @@
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/notCategorizedWarningText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:textColor="@color/yellow"
-                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="16dp"/>
 
             <!-- Category Table RecyclerView -->
             <LinearLayout

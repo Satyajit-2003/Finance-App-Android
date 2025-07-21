@@ -11,6 +11,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.spendtrackr.api.ApiClient;
+import com.example.spendtrackr.api.ApiRetryHandler;
 import com.example.spendtrackr.api.ApiService;
 import com.example.spendtrackr.api.BaseResponse;
 import com.example.spendtrackr.utils.NotificationHelper;
@@ -68,7 +69,7 @@ public class SmsReceiver extends BroadcastReceiver {
         body.put("date", isoDate);
         Log.i("SMSReceiver", "Sending to API, " + isoDate + messageBody);
 
-        apiService.logTransaction(body).enqueue(new Callback<BaseResponse<Void>>() {
+        ApiRetryHandler.enqueueWithRetry(apiService.logTransaction(body), 0, new Callback<BaseResponse<Void>>() {
             @Override
             public void onResponse(@NonNull Call<BaseResponse<Void>> call, @NonNull Response<BaseResponse<Void>> response) {
                 String apiMessage = response.body() != null ? response.body().message : response.message();
@@ -86,6 +87,7 @@ public class SmsReceiver extends BroadcastReceiver {
                 NotificationHelper.showErrorNotification(context, "API Failure logTransaction", t.getMessage());
             }
         });
+
 
     }
 }

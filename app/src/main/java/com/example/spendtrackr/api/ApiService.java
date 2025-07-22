@@ -11,7 +11,7 @@ import java.util.Map;
 
 public interface ApiService {
 
-    @POST("/api/v1/log")
+    @POST("/api/v1/transactions")
     Call<BaseResponse<Void>> logTransaction(@Body Map<String, Object> body);
 
     @GET("/api/v1/stats/{monthYear}")

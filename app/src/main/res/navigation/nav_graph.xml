@@ -9,6 +9,13 @@
         android:label="Charts" />
 
     <fragment
+        android:id="@+id/transactionFragment"
+        android:name="com.example.spendtrackr.ui.TransactionFragment"
+        android:label="Transactions"/>
+<!--        tools:layout="@layout/fragment_transaction" />-->
+
+
+    <fragment
         android:id="@+id/settingsFragment"
         android:name="com.example.spendtrackr.ui.SettingsFragment"
         android:label="Settings" />

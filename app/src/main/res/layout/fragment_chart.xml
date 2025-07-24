@@ -39,7 +39,7 @@
                     android:text="@string/summary_header_placeholder"
                     android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                     android:textColor="@color/md_theme_onPrimary"
-                    android:drawableEnd="@drawable/expand_more"
+                    android:drawableEnd="@drawable/ic_calendar_month"
                     android:drawablePadding="8dp" />
             </com.google.android.material.card.MaterialCardView>
 

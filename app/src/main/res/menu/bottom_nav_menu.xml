@@ -2,8 +2,13 @@
 
     <item
         android:id="@+id/chartFragment"
-        android:icon="@drawable/ic_chart"
-        android:title="@string/bottom_nav_charts" />
+        android:icon="@drawable/ic_home"
+        android:title="@string/bottom_nav_home" />
+
+    <item
+        android:id="@+id/transactionFragment"
+        android:icon="@drawable/ic_transactions"
+        android:title="@string/bottom_nav_transactions"/>
 
     <item
         android:id="@+id/settingsFragment"

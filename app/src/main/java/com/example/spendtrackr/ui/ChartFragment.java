@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
-import android.graphics.Color;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -76,7 +75,6 @@ public class ChartFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate your fragment layout (we’ll create it next)
         return inflater.inflate(R.layout.fragment_chart, container, false);
     }
 
@@ -103,10 +101,8 @@ public class ChartFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(() -> fetchAndDisplayStats(currentMonthYear, amountPieChart, countPieChart, swipeRefreshLayout, summaryTextView,
                 totalSpendsTextView, totalTransactionsTextView, notCategorizedWarningTextView, summaryRecyclerView));
 
-        monthYearSelectorCard.setOnClickListener(v -> {
-            showMonthYearPicker(amountPieChart, countPieChart, swipeRefreshLayout, summaryTextView,
-                    totalSpendsTextView, totalTransactionsTextView, notCategorizedWarningTextView, summaryRecyclerView);
-        });
+        monthYearSelectorCard.setOnClickListener(v -> showMonthYearPicker(amountPieChart, countPieChart, swipeRefreshLayout, summaryTextView,
+                totalSpendsTextView, totalTransactionsTextView, notCategorizedWarningTextView, summaryRecyclerView));
 
         // Fetch only once on view created
         fetchAndDisplayStats(currentMonthYear, amountPieChart, countPieChart, swipeRefreshLayout, summaryTextView,
@@ -146,13 +142,7 @@ public class ChartFragment extends Fragment {
         pieChart.invalidate();
 
         Legend legend = pieChart.getLegend();
-        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
-        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
-        legend.setOrientation(Legend.LegendOrientation.HORIZONTAL);
-        legend.setDrawInside(false);
-        legend.setTextColor(Color.WHITE);
-        legend.setTextSize(12f);
-        legend.setWordWrapEnabled(true);
+        legend.setEnabled(false);
     }
 
 

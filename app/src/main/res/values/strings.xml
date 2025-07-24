@@ -12,12 +12,16 @@
 
     <string name="api_url_editor_placeholder">API Base URL</string>
     <string name="api_key_editor_placeholder">API Key</string>
+
     <string name="save_and_check_api_button_text">Save and Check API</string>
     <string name="api_status_unknown">API Status: Unknown</string>
     <string name="api_status_checking">API Status: ⏳ Checking…</string>
     <string name="api_status_healthy">API Status: 🟢 Healthy</string>
     <string name="api_status_unhealthy">API Status: 🔴 Not Reachable</string>
-    <string name="bottom_nav_charts">Charts</string>
+
+    <!-- Bottom Nav and Header-->
+    <string name="bottom_nav_home">Home</string>
+    <string name="bottom_nav_transactions">Transactions</string>
     <string name="bottom_nav_settings">Settings</string>
     <string name="settings_header">Settings</string>
 
@@ -29,4 +33,35 @@
     <string name="stats_header_count">Count</string>
     <string name="stats_item_amount">₹%.2f</string>
     <string name="settings_page_note">⚠️This doesn\'t validate the API key. Look for 403 Error in Notification for invalid API Key.</string>
+
+    <!-- Transaction Fragment -->
+    <string name="transaction_default_date_placeholder">Date: …</string>
+    <string name="transaction_total_amount_placeholder">Total: …</string>
+    <string name="transaction_total_by_me_placeholder">My Spend: …</string>
+    <string name="transaction_total_by_friend_placeholder">Friend Split: …</string>
+
+    <string name="transaction_default_date">Date: %1$s</string>
+    <string name="transaction_total_amount">Total: ₹%.2f</string>
+    <string name="transaction_total_by_me">My Spend: ₹%.2f</string>
+    <string name="transaction_total_by_friend">Friend Split: ₹%.2f</string>
+
+    <!-- Transaction Item -->
+    <string name="transaction_item_description">Description</string>
+    <string name="transaction_item_category">Category</string>
+    <string name="transaction_item_amount">₹0.00</string>
+    <string name="transaction_item_friend_split">Friend: ₹0.00</string>
+    <string name="transaction_item_amount_borne">Me: ₹0.00</string>
+    <string name="transaction_item_notes">Notes</string>
+
+    <!-- Edit Dialog Box -->
+    <string name="edit_dialog_amount">Amount (₹)</string>
+    <string name="edit_dialog_category">Category</string>
+    <string name="edit_dialog_friend_split">Friend Split (₹)</string>
+    <string name="edit_dialog_50_50">50:50</string>
+    <string name="edit_dialog_clear_split">Clear</string>
+    <string name="edit_dialog_notes">Notes (optional)</string>
+    <string name="edit_dialog_delete_button">Delete</string>
+    <string name="edit_dialog_cancel_button">Cancel</string>
+    <string name="edit_dialog_save_button">Save</string>
+
 </resources>

@@ -93,6 +93,7 @@ public class EditTransactionDialog extends DialogFragment {
         MaterialButton cancelButton = view.findViewById(R.id.cancelButton);
         MaterialButton fiftyFiftyButton = view.findViewById(R.id.fiftyFiftyButton);
         MaterialButton clearSplitButton = view.findViewById(R.id.clearButton);
+        MaterialButton fullSplitButton = view.findViewById(R.id.fullSplitButton);
 
 
         // Populate dropdown
@@ -101,13 +102,12 @@ public class EditTransactionDialog extends DialogFragment {
                 android.R.layout.simple_spinner_dropdown_item,
                 CategoryManager.getCategoryColorMap().keySet().toArray(new String[0])
         );
-        Log.i("EditTransactionDialog", Arrays.toString(CategoryManager.getCategoryColorMap().keySet().toArray(new String[0])));
         categoryDropdown.setAdapter(adapter);
 
         // Pre-fill data
         inputAmount.setText(transactionItem.amount);
         categoryDropdown.setText(transactionItem.type, false);
-        inputFriendSplit.setText(transactionItem.friendSplit);
+        inputFriendSplit.setText((Objects.equals(transactionItem.friendSplit, "0")) ? "" : String.valueOf(transactionItem.friendSplit));
         inputNotes.setText(transactionItem.notes);
 
         // 50:50 logic
@@ -121,14 +121,15 @@ public class EditTransactionDialog extends DialogFragment {
             }
         });
 
+        // Full Split Logic
+        fullSplitButton.setOnClickListener(v -> {
+            String amountStr = Objects.requireNonNull(inputAmount.getText()).toString();
+            inputFriendSplit.setText(amountStr);
+        });
+
         // Clear logic
         clearSplitButton.setOnClickListener(v -> {
-            String amountStr = Objects.requireNonNull(inputAmount.getText()).toString();
-            if (!TextUtils.isEmpty(amountStr)) {
-                try {
-                    inputFriendSplit.setText("0");
-                } catch (NumberFormatException ignored) {}
-            }
+            inputFriendSplit.setText("");
         });
 
         // Save logic

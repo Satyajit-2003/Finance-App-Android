@@ -22,6 +22,7 @@ import com.example.spendtrackr.api.ApiClient;
 import com.example.spendtrackr.api.ApiService;
 import com.example.spendtrackr.api.BaseResponse;
 import com.example.spendtrackr.api.StatsResponse;
+import com.example.spendtrackr.utils.CategoryManager;
 import com.example.spendtrackr.utils.NotificationHelper;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.PieData;
@@ -69,6 +70,7 @@ public class ChartFragment extends Fragment {
     private final Map<String, StatsCacheEntry> statsCacheMap = new HashMap<>();
     private static final long CACHE_DURATION_MS = 60 * 1000; // 1 minute
     private String currentMonthYear = null;
+    private final String TAG = "ChartFragment";
 
 
 
@@ -153,13 +155,13 @@ public class ChartFragment extends Fragment {
 
         if (cacheEntry != null && (now - cacheEntry.fetchTime) < CACHE_DURATION_MS) {
             swipeRefreshLayout.setRefreshing(false);
-            Log.i("fetchAndDisplayStats", "Using Cache for " + currentMonthYear);
+            Log.i(TAG, "Using Cache for " + currentMonthYear);
             displayStats(amountPieChart, countPieChart, summaryTextView, totalSpendsTextView,
                     totalTransactionsTextView, notCategorizedWarningTextView, summaryRecyclerView, cacheEntry.statsResponse);
             return;
         }
 
-        Log.i("fetchAndDisplayStats", "Making Fresh API calls");
+        Log.i(TAG, "Making Fresh API calls");
 
         swipeRefreshLayout.setRefreshing(true);
 
@@ -197,6 +199,9 @@ public class ChartFragment extends Fragment {
         Map<String, Float> countData = new HashMap<>();
         List<CategorySummaryAdapter.CategorySummaryItem> summaryItems = new ArrayList<>();
         int uncategorizedCount = 0;
+        long totalAmountPieChart = (long) 0;
+        int totalTransactionsPieChart = 0;
+
 
         // Add for header:
         summaryItems.add(new CategorySummaryAdapter.CategorySummaryItem("Header", 0.0, 0));
@@ -208,8 +213,12 @@ public class ChartFragment extends Fragment {
                 continue;
             }
 
-            amountData.put(category, (float) entry.getValue().amount);
-            countData.put(category, (float) entry.getValue().count);
+            if (CategoryManager.shouldIncludeInPieChart(category)){
+                amountData.put(category, (float) entry.getValue().amount);
+                countData.put(category, (float) entry.getValue().count);
+                totalAmountPieChart += (long) entry.getValue().amount;
+                totalTransactionsPieChart += entry.getValue().count;
+            }
 
             summaryItems.add(new CategorySummaryAdapter.CategorySummaryItem(category, entry.getValue().amount, entry.getValue().count));
         }
@@ -217,11 +226,11 @@ public class ChartFragment extends Fragment {
         summaryTextView.setText(getString(R.string.summary_header, stats.monthYear));
         currentMonthYear = stats.monthYear;
 
-        setupPieChartWithOthers(amountPieChart, amountData, (float) stats.totalSpend, "Amount by Category");
-        setupPieChartWithOthers(countPieChart, countData, stats.transactionCount,"Count by Category");
+        setupPieChartWithOthers(amountPieChart, amountData, (float) totalAmountPieChart, "Amount by Category");
+        setupPieChartWithOthers(countPieChart, countData, totalTransactionsPieChart,"Count by Category");
 
-        totalSpendsTextView.setText(getString(R.string.total_spends_text, stats.totalSpend));
-        totalTransactionsTextView.setText(getString(R.string.total_transactions_text, stats.transactionCount));
+        totalSpendsTextView.setText(getString(R.string.total_spends_text, (float) totalAmountPieChart));
+        totalTransactionsTextView.setText(getString(R.string.total_transactions_text, totalTransactionsPieChart));
 
         if (uncategorizedCount > 0) {
             notCategorizedWarningTextView.setText(getString(R.string.not_categorizedWarning_text, uncategorizedCount));

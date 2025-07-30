@@ -37,29 +37,37 @@ public class SmsReceiver extends BroadcastReceiver {
             Bundle bundle = intent.getExtras();
             if (bundle != null) {
                 Object[] pdus = (Object[]) bundle.get("pdus");
-                if (pdus != null) {
-                    String format = bundle.getString("format"); // Needed for API 23+
+                if (pdus != null && pdus.length > 0) {
+                    String format = bundle.getString("format");
+                    StringBuilder fullMessage = new StringBuilder();
+                    Date timestamp = null;
+
                     for (Object pdu : pdus) {
-                        SmsMessage sms;
-                        sms = SmsMessage.createFromPdu((byte[]) pdu, format);
-
-                        if (sms == null) return;
-
-                        String messageBody = sms.getMessageBody();
-                        Date timestamp = new Date(sms.getTimestampMillis());
-
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
-                        String isoDate = sdf.format(timestamp);
-
-                        Log.d(TAG, "Received SMS: " + messageBody + " at " + isoDate);
-
-                        sendToApi(context, messageBody, isoDate);
+                        SmsMessage sms = SmsMessage.createFromPdu((byte[]) pdu, format);
+                        if (sms != null) {
+                            fullMessage.append(sms.getMessageBody());
+                            // Use timestamp from first SMS part
+                            if (timestamp == null) {
+                                timestamp = new Date(sms.getTimestampMillis());
+                            }
+                        }
                     }
-                }
 
+                    if (timestamp == null) {
+                        timestamp = new Date(); // fallback
+                    }
+
+                    String messageBody = fullMessage.toString().trim();
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+                    String isoDate = sdf.format(timestamp);
+
+                    // Single API call with full message
+                    sendToApi(context, messageBody, isoDate);
+                }
             }
         }
     }
+
 
     private void sendToApi(Context context, String messageBody, String isoDate) {
         ApiService apiService = ApiClient.getApiService(context);
@@ -67,17 +75,19 @@ public class SmsReceiver extends BroadcastReceiver {
         Map<String, Object> body = new HashMap<>();
         body.put("text", messageBody);
         body.put("date", isoDate);
-        Log.i("SMSReceiver", "Sending to API, " + isoDate + messageBody);
+        Log.i(TAG, "Sending to API, " + isoDate + messageBody);
 
         ApiRetryHandler.enqueueWithRetry(apiService.logTransaction(body), 0, new Callback<BaseResponse<Void>>() {
             @Override
             public void onResponse(@NonNull Call<BaseResponse<Void>> call, @NonNull Response<BaseResponse<Void>> response) {
                 String apiMessage = response.body() != null ? response.body().message : response.message();
                 if (!response.isSuccessful() || response.body() == null) {
-                    Log.e(TAG, "API Error Code: " + response.code());
-                    NotificationHelper.showErrorNotification(context, "logTransaction Code: " + response.code(), apiMessage);
+                    Log.i(TAG, "API Status Code: " + response.code() + ", " + apiMessage);
+                    if (response.code() == 201){
+                        NotificationHelper.showErrorNotification(context, "logTransaction Success: " + response.code(), apiMessage);
+                    }
                 } else {
-                    NotificationHelper.showErrorNotification(context, "logTransaction Success", apiMessage);
+                    NotificationHelper.showErrorNotification(context, "logTransaction Failure", apiMessage);
                 }
             }
 

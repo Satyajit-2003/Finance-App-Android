@@ -31,24 +31,26 @@
     <color name="md_theme_onSurfaceVariant">#CAC4D0</color>
     <color name="md_theme_outline">#938F99</color>
 
-    <!-- Transaction Category-->
-    <color name="category_food_order">#4DFF6B6B</color>
-    <color name="category_office_lunch">#4DF7B7A3</color>
-    <color name="category_dining_out">#4DFF9F43</color>
-    <color name="category_groceries">#4DF8C471</color>
-    <color name="category_retail">#4DF5B041</color>
-    <color name="category_bill_payment">#4DBB8FCE</color>
-    <color name="category_subscription">#4D85C1E9</color>
-    <color name="category_transportation">#4D4ECDC4</color>
-    <color name="category_shopping">#4D45B7D1</color>
-    <color name="category_entertainment">#4D96CEB4</color>
-    <color name="category_utilities">#4DFFEAA7</color>
-    <color name="category_healthcare">#4DDDA0DD</color>
-    <color name="category_education">#4D98D8C8</color>
-    <color name="category_investment">#4DF7DC6F</color>
-    <color name="category_transfer">#4DAED6F1</color>
-    <color name="category_cash_withdrawal">#4DF1948A</color>
-    <color name="category_other">#4DD5DBDB</color>
+    <!-- Transaction Category Colors -->
+    <color name="category_food_order">#4DFF6B6B</color>           <!-- Red -->
+    <color name="category_office_cafeteria">#4DF7B7A3</color>      <!-- Light Red -->
+    <color name="category_dining_out">#4DFF9F43</color>            <!-- Orange -->
+    <color name="category_groceries">#4DF8C471</color>            <!-- Light Orange -->
+    <color name="category_travel">#4D4ECDC4</color>               <!-- Teal -->
+    <color name="category_shopping">#4D45B7D1</color>             <!-- Blue -->
+    <color name="category_entertainment">#4D96CEB4</color>        <!-- Green -->
+    <color name="category_utility_bills">#4DFFEAA7</color>        <!-- Yellow -->
+    <color name="category_healthcare">#4DDDA0DD</color>           <!-- Plum -->
+    <color name="category_investment">#4DF7DC6F</color>           <!-- Light Yellow -->
+    <color name="category_transfer">#4DAED6F1</color>             <!-- Light Blue -->
+    <color name="category_subscription">#4D85C1E9</color>         <!-- Sky Blue -->
+    <color name="category_rent">#4DF1948A</color>                 <!-- Light Red -->
+    <color name="category_loan_repayment">#4DF5B041</color>       <!-- Light Yellow -->
+    <color name="category_cc_bill">#4DBB8FCE</color>              <!-- Light Purple -->
+    <color name="category_education">#4D98D8C8</color>            <!-- Mint -->
+    <color name="category_other">#4DD5DBDB</color>                <!-- Light Gray -->
+    <color name="category_select">#4DFFFFFF</color>               <!-- White -->
+
 
 
 

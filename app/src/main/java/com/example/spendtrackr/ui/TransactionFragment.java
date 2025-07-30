@@ -33,6 +33,8 @@ public class TransactionFragment extends Fragment implements TransactionAdapter.
         }
     }
 
+    private static final String TAG = "TransactionFragment";
+
     private final Map<String, TransactionCacheEntry> transactionCacheMap = new HashMap<>();
     private static final long CACHE_DURATION_MS = 60 * 1000; // 1 min
 
@@ -77,6 +79,14 @@ public class TransactionFragment extends Fragment implements TransactionAdapter.
 
     private void showDatePicker() {
         Calendar calendar = Calendar.getInstance();
+        try {
+            Date selectedDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(currentDate);
+            if (selectedDate != null) {
+                calendar.setTime(selectedDate);
+            }
+        } catch (Exception ignored) {
+
+        }
         DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(), (view, year, month, day) -> {
             calendar.set(year, month, day);
             currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.getTime());
@@ -99,13 +109,15 @@ public class TransactionFragment extends Fragment implements TransactionAdapter.
 
         if (cacheEntry != null && (now - cacheEntry.fetchTime) < CACHE_DURATION_MS) {
             swipeRefreshLayout.setRefreshing(false);
-            Log.i("TransactionFragment", "Using cache for " + date);
+            Log.i(TAG, "Using cache for " + date);
             transactions.clear();
             transactions.addAll(cacheEntry.transactions);
             adapter.notifyDataSetChanged();
             updateSummary(cacheEntry.transactions);
             return;
         }
+
+        Log.i(TAG, "Making Fresh API Calls for " + date);
 
         swipeRefreshLayout.setRefreshing(true);
         ApiService apiService = ApiClient.getApiService(requireContext());

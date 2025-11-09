@@ -54,6 +54,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         holder.friendSplit.setText(String.format(Locale.ENGLISH, "Friend: ₹%s", item.friendSplit));
         holder.amountBorne.setText(String.format(Locale.ENGLISH, "Me: ₹%s", item.amountBorne));
         holder.notes.setText(item.notes);
+        holder.account.setText((item.account));
 
         holder.editButton.setOnClickListener(v -> {
             EditTransactionDialog dialog = EditTransactionDialog.newInstance(item, sheetName);
@@ -99,7 +100,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView category, amount, friendSplit, amountBorne, notes;
+        TextView category, amount, friendSplit, amountBorne, notes, account;
         CardView cardView;
         ImageButton editButton;
 
@@ -110,6 +111,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             friendSplit = itemView.findViewById(R.id.transactionFriendSplit);
             amountBorne = itemView.findViewById(R.id.transactionAmountBorne);
             notes = itemView.findViewById(R.id.transactionNotes);
+            account = itemView.findViewById(R.id.transactionAccount);
             cardView = itemView.findViewById(R.id.cardView);
             editButton = itemView.findViewById(R.id.editButton);
         }

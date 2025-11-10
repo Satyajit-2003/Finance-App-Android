@@ -19,6 +19,7 @@ import com.example.spendtrackr.api.ApiClient;
 import com.example.spendtrackr.api.BaseResponse;
 import com.example.spendtrackr.api.HealthResponse;
 import com.example.spendtrackr.utils.SharedPrefHelper;
+import com.google.android.material.textfield.TextInputLayout;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -44,6 +45,7 @@ public class SettingsFragment extends Fragment {
         EditText editApiKey = view.findViewById(R.id.editApiKey);
         Button buttonSave = view.findViewById(R.id.buttonSaveUrl);
         TextView apiStatusText = view.findViewById(R.id.apiStatusText);
+        TextInputLayout apiKeyPlaceHolder = view.findViewById(R.id.apiKeyPlaceHolder);
         Button btnToggleApiKey = view.findViewById(R.id.btn_toggle_api_key);
 
         editBaseUrl.setText(SharedPrefHelper.getBaseUrl(requireContext()));
@@ -59,22 +61,27 @@ public class SettingsFragment extends Fragment {
             buttonSave.setEnabled(true);
         });
 
-        btnToggleApiKey.setOnClickListener(new View.OnClickListener() {
+        apiKeyPlaceHolder.setEndIconOnClickListener(new View.OnClickListener() {
             private boolean isVisible = false;
 
             @Override
             public void onClick(View v) {
                 if (isVisible) {
+                    // Hide API key
                     editApiKey.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD);
-                    btnToggleApiKey.setText(R.string.api_button_show_api_key_text);
+                    apiKeyPlaceHolder.setEndIconDrawable(R.drawable.ic_show_password); // show "eye" icon
                 } else {
+                    // Show API key
                     editApiKey.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-                    btnToggleApiKey.setText(R.string.api_button_hide_api_key_text);
+                    apiKeyPlaceHolder.setEndIconDrawable(R.drawable.ic_hide_password); // show "eye-off" icon
                 }
+
+                // Move cursor to the end of the text after toggling visibility
                 editApiKey.setSelection(editApiKey.getText().length());
                 isVisible = !isVisible;
             }
         });
+
         return view;
     }
 

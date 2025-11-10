@@ -36,7 +36,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/api_key_editor_placeholder"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="16dp"
+            android:id="@+id/apiKeyPlaceHolder"
+            app:endIconMode="password_toggle"
+            app:endIconDrawable="@drawable/ic_show_password">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editApiKey"
@@ -44,13 +47,6 @@
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"/>
         </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_toggle_api_key"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/api_button_show_api_key_text"
-            android:layout_marginTop="8dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonSaveUrl"

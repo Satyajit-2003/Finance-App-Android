@@ -1,5 +1,7 @@
 package com.example.spendtrackr.ui;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -16,10 +18,13 @@ import androidx.fragment.app.Fragment;
 import com.example.spendtrackr.R;
 import com.example.spendtrackr.api.ApiService;
 import com.example.spendtrackr.api.ApiClient;
+import com.example.spendtrackr.api.AuthCheckResponse;
 import com.example.spendtrackr.api.BaseResponse;
 import com.example.spendtrackr.api.HealthResponse;
 import com.example.spendtrackr.utils.SharedPrefHelper;
 import com.google.android.material.textfield.TextInputLayout;
+
+import org.w3c.dom.Text;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -32,8 +37,10 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        checkApiHealth(view.findViewById(R.id.apiStatusText));
-
+        TextView apiStatusText = view.findViewById(R.id.serverStatusText);
+        TextView authStatusText = view.findViewById(R.id.authStatusText);
+        Button excelSheetButton = view.findViewById(R.id.excelSheetButton);
+        checkApiHealth(apiStatusText, authStatusText, excelSheetButton);
     }
 
     @Override
@@ -44,9 +51,10 @@ public class SettingsFragment extends Fragment {
         EditText editBaseUrl = view.findViewById(R.id.editBaseUrl);
         EditText editApiKey = view.findViewById(R.id.editApiKey);
         Button buttonSave = view.findViewById(R.id.buttonSaveUrl);
-        TextView apiStatusText = view.findViewById(R.id.apiStatusText);
+        TextView apiStatusText = view.findViewById(R.id.serverStatusText);
+        TextView authStatusText = view.findViewById(R.id.authStatusText);
+        Button excelSheetButton = view.findViewById(R.id.excelSheetButton);
         TextInputLayout apiKeyPlaceHolder = view.findViewById(R.id.apiKeyPlaceHolder);
-        Button btnToggleApiKey = view.findViewById(R.id.btn_toggle_api_key);
 
         editBaseUrl.setText(SharedPrefHelper.getBaseUrl(requireContext()));
         editApiKey.setText(SharedPrefHelper.getApiKey(requireContext()));
@@ -57,7 +65,7 @@ public class SettingsFragment extends Fragment {
             SharedPrefHelper.setBaseUrl(requireContext(), newUrl);
             SharedPrefHelper.setApiKey(requireContext(), newApiKey);
             buttonSave.setEnabled(false);
-            checkApiHealth(apiStatusText);
+            checkApiHealth(apiStatusText, authStatusText, excelSheetButton);
             buttonSave.setEnabled(true);
         });
 
@@ -85,29 +93,62 @@ public class SettingsFragment extends Fragment {
         return view;
     }
 
-    private void checkApiHealth(TextView apiStatusText) {
-
-        apiStatusText.setText(R.string.api_status_checking);
-        apiStatusText.setTextColor(getResources().getColor(R.color.yellow, null));
+    private void checkApiHealth(TextView serverStatusCheck, TextView authStatusCheck, Button excelSheetButton) {
+        serverStatusCheck.setText(R.string.server_status_checking);
+        serverStatusCheck.setTextColor(getResources().getColor(R.color.yellow, null));
+        authStatusCheck.setText(R.string.auth_status_checking);
+        authStatusCheck.setTextColor(getResources().getColor(R.color.yellow, null));
         ApiService apiService = ApiClient.getApiService(requireContext());
-        apiService.getHealth().enqueue(new Callback<BaseResponse<HealthResponse>>() {
+
+        apiService.checkAuth().enqueue(new Callback<BaseResponse<AuthCheckResponse>>() {
             @Override
-            public void onResponse(@NonNull Call<BaseResponse<HealthResponse>> call, @NonNull Response<BaseResponse<HealthResponse>> response) {
-                if (response.isSuccessful() && response.body() != null &&
-                        "healthy".equalsIgnoreCase(response.body().data.getStatus())) {
-                    apiStatusText.setText(R.string.api_status_healthy);
-                    apiStatusText.setTextColor(getResources().getColor(R.color.green, null));
+            public void onResponse(@NonNull Call<BaseResponse<AuthCheckResponse>> call,
+                                   @NonNull Response<BaseResponse<AuthCheckResponse>> response) {
+
+                if (response.isSuccessful() && response.body() != null && response.body().success) {
+                    // 200 OK — API authenticated
+                    serverStatusCheck.setText(R.string.server_status_healthy);
+                    serverStatusCheck.setTextColor(getResources().getColor(R.color.green, null));
+                    authStatusCheck.setText(R.string.auth_status_okay);
+                    authStatusCheck.setTextColor(getResources().getColor(R.color.green, null));
+
+                    String sheetUrl = response.body().data.getSheetUrl();
+                    if (sheetUrl != null && !sheetUrl.isEmpty()) {
+                        excelSheetButton.setEnabled(true);
+                        excelSheetButton.setOnClickListener(v -> {
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(sheetUrl));
+                            startActivity(browserIntent);
+                        });
+                    } else {
+                        excelSheetButton.setEnabled(false);
+                    }
+                } else if (response.code() == 403) {
+                    // Invalid API Key
+                    serverStatusCheck.setText(R.string.server_status_healthy);
+                    serverStatusCheck.setTextColor(getResources().getColor(R.color.green, null));
+                    authStatusCheck.setText(R.string.auth_status_bad);
+                    authStatusCheck.setTextColor(getResources().getColor(R.color.red, null));
+                    excelSheetButton.setEnabled(false);
                 } else {
-                    apiStatusText.setText(R.string.api_status_unhealthy);
-                    apiStatusText.setTextColor(getResources().getColor(R.color.red, null));
+                    //  Server-side issue
+                    serverStatusCheck.setText(R.string.server_status_error);
+                    serverStatusCheck.setTextColor(getResources().getColor(R.color.red, null));
+                    authStatusCheck.setText(R.string.auth_status_unknown);
+                    authStatusCheck.setTextColor(getResources().getColor(R.color.yellow, null));
+                    excelSheetButton.setEnabled(false);
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<BaseResponse<HealthResponse>> call, @NonNull Throwable t) {
-                apiStatusText.setText(R.string.api_status_unhealthy);
+            public void onFailure(@NonNull Call<BaseResponse<AuthCheckResponse>> call, @NonNull Throwable t) {
+                // Timeout / Network error
+                serverStatusCheck.setText(R.string.server_status_unhealthy);
+                serverStatusCheck.setTextColor(getResources().getColor(R.color.red, null));
+                authStatusCheck.setText(R.string.auth_status_unknown);
+                authStatusCheck.setTextColor(getResources().getColor(R.color.yellow, null));
+                excelSheetButton.setEnabled(false);
             }
-
         });
     }
+
 }

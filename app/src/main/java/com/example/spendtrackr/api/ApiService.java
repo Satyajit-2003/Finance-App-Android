@@ -15,8 +15,8 @@ public interface ApiService {
     @GET("health")
     Call<BaseResponse<HealthResponse>> getHealth();
 
-    @GET("/api/v1/stats/{monthYear}")
-    Call<BaseResponse<StatsResponse>> getStats(@Path("monthYear") String monthYear);
+    @GET("api/v1/check-auth")
+    Call<BaseResponse<AuthCheckResponse>> checkAuth();
 
     @POST("/api/v1/transactions")
     Call<BaseResponse<Void>> logTransaction(@Body Map<String, Object> body);

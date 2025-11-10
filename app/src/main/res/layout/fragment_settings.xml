@@ -53,23 +53,47 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/save_and_check_api_button_text"
-            android:layout_marginBottom="16dp"/>
+            android:layout_marginBottom="16dp" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/apiStatusText"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/excelSheetButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/api_status_unknown"
-            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-            android:layout_marginBottom="16dp"/>
+            android:text="Open Excel Worksheet"
+            android:enabled="false"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="15dp" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/settings_page_note"
-            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+            android:orientation="horizontal"
+            android:gravity="center"
             android:layout_marginBottom="16dp"
-            android:textAlignment="center"/>
+            android:weightSum="2">
+
+            <!-- Server Status -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/serverStatusText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/server_status_unknown"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                android:gravity="center"
+                android:layout_marginEnd="8dp" />
+
+            <!-- Auth Status -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/authStatusText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/auth_status_unknown"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                android:gravity="center" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

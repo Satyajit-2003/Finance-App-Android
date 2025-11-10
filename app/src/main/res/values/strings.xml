@@ -14,10 +14,19 @@
     <string name="api_key_editor_placeholder">API Key</string>
 
     <string name="save_and_check_api_button_text">Save and Check API</string>
-    <string name="api_status_unknown">API Status: Unknown</string>
-    <string name="api_status_checking">API Status: ⏳ Checking…</string>
-    <string name="api_status_healthy">API Status: 🟢 Healthy</string>
-    <string name="api_status_unhealthy">API Status: 🔴 Not Reachable</string>
+
+    <!--Server health check strings-->
+    <string name="server_status_unknown">Server Status: ⚠️ Unknown</string>
+    <string name="server_status_checking">Server Status: ⏳ Checking…</string>
+    <string name="server_status_healthy">Server Status: 🟢 Healthy</string>
+    <string name="server_status_error">Server Status: 🔴 Internal Server Error</string>
+    <string name="server_status_unhealthy">Server Status: 🔴 Not Reachable</string>
+
+    <!--Auth check strings-->
+    <string name="auth_status_unknown">Auth Status: ⚠️ Unknown</string>
+    <string name="auth_status_checking">Auth Status: ⏳ Checking…</string>
+    <string name="auth_status_okay">Auth Status: ✅ 200 Okay</string>
+    <string name="auth_status_bad">Auth Status: 🚫 403 Forbidden</string>
 
     <!-- Bottom Nav and Header-->
     <string name="bottom_nav_home">Home</string>
@@ -29,7 +38,6 @@
     <string name="stats_header_amount">Amount</string>
     <string name="stats_header_count">Count</string>
     <string name="stats_item_amount">₹%.2f</string>
-    <string name="settings_page_note">⚠️This doesn\'t validate the API key. Look for 403 Error in Notification for invalid API Key.</string>
 
     <!-- Transaction Fragment -->
     <string name="transaction_default_date_placeholder">Date: …</string>

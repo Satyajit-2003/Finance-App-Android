@@ -2,6 +2,7 @@ package com.example.spendtrackr.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import com.example.spendtrackr.api.ApiClient;
 
 public class SharedPrefHelper {
 
@@ -18,8 +19,14 @@ public class SharedPrefHelper {
 
     public static void setBaseUrl(Context context, String url) {
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        prefs.edit().putString(KEY_BASE_URL, url).apply();
+        String existingUrl = prefs.getString(KEY_BASE_URL, DEFAULT_URL);
+
+        if (!url.equals(existingUrl)) {
+            prefs.edit().putString(KEY_BASE_URL, url).apply();
+            ApiClient.rebuildService(context);
+        }
     }
+
 
     public static String getApiKey(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -28,6 +35,11 @@ public class SharedPrefHelper {
 
     public static void setApiKey(Context context, String key) {
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        prefs.edit().putString(API_KEY, key).apply();
+        String existingKey = prefs.getString(API_KEY, DEFAULT_KEY);
+
+        if (!key.equals(existingKey)){
+            prefs.edit().putString(API_KEY, key).apply();
+            ApiClient.rebuildService(context);
+        }
     }
 }

@@ -48,4 +48,11 @@ public class ApiClient {
         }
         return apiService;
     }
+
+    public static void rebuildService(Context context) {
+        apiService = null;
+        getApiService(context);
+    }
+
 }
+

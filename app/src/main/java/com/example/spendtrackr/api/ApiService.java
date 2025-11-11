@@ -7,6 +7,7 @@ import retrofit2.http.HTTP;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 import java.util.Map;
 
@@ -18,11 +19,17 @@ public interface ApiService {
     @GET("api/v1/check-auth")
     Call<BaseResponse<AuthCheckResponse>> checkAuth();
 
-    @POST("/api/v1/transactions")
-    Call<BaseResponse<Void>> logTransaction(@Body Map<String, Object> body);
+    @GET("/api/v1/stats")
+    Call<BaseResponse<StatsResponse>> getStats(@Query("month_year") String monthYear);
 
-    @GET("/api/v1/transactions/{date}")
-    Call<BaseResponse<TransactionResponse>> getTransactionsByDate(@Path("date") String date);
+    @POST("/api/v1/log-sms")
+    Call<BaseResponse<AddTransactionResponse>> logTransaction(@Body Map<String, Object> body);
+
+    @POST("/api/v1/transactions")
+    Call<BaseResponse<AddTransactionResponse>> addTransaction(@Body Map<String, Object> body);
+
+    @GET("/api/v1/transactions")
+    Call<BaseResponse<TransactionResponse>> getTransactionsByDate(@Query("date") String date);
 
     @PATCH("/api/v1/transactions")
     Call<BaseResponse<Void>> updateTransaction(@Body Map<String, Object> body);

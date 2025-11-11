@@ -24,9 +24,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     private final String TAG = "TransactionAdopter";
 
     public interface OnTransactionEditedListener {
-        void onTransactionUpdated(List<TransactionItem> transactions, int i);
-
-        void onTransactionDeleted(List<TransactionItem> transactions, int i);
+        void onTransactionChanged();
     }
 
     public TransactionAdapter(List<TransactionItem> transactionList, String sheetName,
@@ -73,20 +71,15 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
     @Override
     public void onTransactionUpdated(TransactionItem updatedItem) {
-        int idx = -1;
         for (int i = 0; i < transactions.size(); i++) {
             if (transactions.get(i).rowIndex == updatedItem.rowIndex) {
                 transactions.set(i, updatedItem);
-                idx = i;
+                notifyItemChanged(i);
                 break;
             }
         }
 
-        if (idx != -1) {
-            listener.onTransactionUpdated(transactions, idx);
-        } else {
-            Log.e(TAG, String.format("Given rowIndex %d, not found for updation.", updatedItem.rowIndex));
-        }
+        listener.onTransactionChanged();
     }
 
     @Override
@@ -101,15 +94,12 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
                 for (int j = i; j < transactions.size(); j++) {
                     transactions.get(j).rowIndex -= 1;
                 }
-                idx = i;
+
                 break;
             }
         }
-        if (idx != -1) {
-            listener.onTransactionDeleted(transactions, idx);
-        } else {
-            Log.e(TAG, String.format("Given rowIndex %d, not found for deletion", rowIndex));
-        }
+
+        listener.onTransactionChanged();
     }
 
 

@@ -6,8 +6,9 @@ public class ApiParametersHelper {
     public static final String FIELD_FRIEND_SPLIT = "Friend Split";
     public static final String FIELD_NOTES = "Notes";
     public static final String FIELD_ACCOUNT = "Account";
-    public static final String FIELD_DATE = "Date";
 
+
+    public static final String ARG_DATE = "date";
     public static final String ARG_SHEET_NAME = "sheet_name";
     public static final String ARG_ROW_INDEX = "row_index";
     public static final String ARG_UPDATES = "updates";

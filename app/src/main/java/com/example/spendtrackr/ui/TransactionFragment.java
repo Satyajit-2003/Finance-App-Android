@@ -10,6 +10,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.*;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.example.spendtrackr.R;
 import com.example.spendtrackr.api.*;
 import com.example.spendtrackr.utils.NotificationHelper;
@@ -21,7 +23,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class TransactionFragment extends Fragment implements TransactionAdapter.OnTransactionEditedListener {
+public class TransactionFragment extends Fragment implements TransactionAdapter.OnTransactionEditedListener, AddTransactionDialog.OnTransactionAddedListener {
 
     private static class TransactionCacheEntry {
         List<TransactionItem> transactions;
@@ -39,10 +41,11 @@ public class TransactionFragment extends Fragment implements TransactionAdapter.
     private static final long CACHE_DURATION_MS = 60 * 1000; // 1 min
 
     private TextView dateText, totalAmountText, totalByMeText, totalByFriendText, noTransactionsWarningText;
+    private FloatingActionButton floatingAddButton;
     private SwipeRefreshLayout swipeRefreshLayout;
     private TransactionAdapter adapter;
     private String currentDate;
-    private final List<TransactionItem> transactions = new ArrayList<>();
+    private final List<TransactionItem> masterTransactions = new ArrayList<>();
 
     public TransactionFragment() {}
 
@@ -62,10 +65,11 @@ public class TransactionFragment extends Fragment implements TransactionAdapter.
         totalByFriendText = view.findViewById(R.id.totalByFriendTextView);
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
         noTransactionsWarningText = view.findViewById(R.id.noTransactionsWarningText);
+        floatingAddButton = view.findViewById(R.id.fabAddTransaction);
 
         // initialize currentDate before adapter
         currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-        adapter = new TransactionAdapter(transactions, getSheetName(currentDate), getChildFragmentManager(), this);
+        adapter = new TransactionAdapter(masterTransactions, getSheetName(currentDate), getChildFragmentManager(), this);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
@@ -73,6 +77,12 @@ public class TransactionFragment extends Fragment implements TransactionAdapter.
         dateText.setText(currentDate);
         dateText.setOnClickListener(v -> showDatePicker());
         swipeRefreshLayout.setOnRefreshListener(() -> fetchTransactions(currentDate));
+
+        floatingAddButton.setOnClickListener(v -> {
+            AddTransactionDialog dialog = AddTransactionDialog.newInstance(currentDate);
+            dialog.setOnTransactionAddedListener(this);
+            dialog.show(getChildFragmentManager(), "AddTransactionDialog");
+        });
 
         fetchTransactions(currentDate);
     }
@@ -92,7 +102,7 @@ public class TransactionFragment extends Fragment implements TransactionAdapter.
             currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.getTime());
             dateText.setText(currentDate);
 
-            adapter = new TransactionAdapter(transactions, getSheetName(currentDate), getChildFragmentManager(), this);
+            adapter = new TransactionAdapter(masterTransactions, getSheetName(currentDate), getChildFragmentManager(), this);
             RecyclerView recyclerView = requireView().findViewById(R.id.transactionsRecyclerView);
             recyclerView.setAdapter(adapter);
 
@@ -110,8 +120,8 @@ public class TransactionFragment extends Fragment implements TransactionAdapter.
         if (cacheEntry != null && (now - cacheEntry.fetchTime) < CACHE_DURATION_MS) {
             swipeRefreshLayout.setRefreshing(false);
             Log.i(TAG, "Using cache for " + date);
-            transactions.clear();
-            transactions.addAll(cacheEntry.transactions);
+            masterTransactions.clear();
+            masterTransactions.addAll(cacheEntry.transactions);
             adapter.notifyDataSetChanged();
             updateSummary(cacheEntry.transactions);
             return;
@@ -127,8 +137,8 @@ public class TransactionFragment extends Fragment implements TransactionAdapter.
                 swipeRefreshLayout.setRefreshing(false);
                 if (response.isSuccessful() && response.body() != null && response.body().success) {
                     TransactionResponse data = response.body().data;
-                    transactions.clear();
-                    transactions.addAll(data.transactions);
+                    masterTransactions.clear();
+                    masterTransactions.addAll(data.transactions);
                     adapter.notifyDataSetChanged();
                     updateSummary(data.transactions);
                     transactionCacheMap.put(date, new TransactionCacheEntry(new ArrayList<>(data.transactions), now));
@@ -169,21 +179,20 @@ public class TransactionFragment extends Fragment implements TransactionAdapter.
         totalByFriendText.setText(getString(R.string.transaction_total_by_friend, totalFriend));
     }
 
-    // Callback from dialog when transaction is updated
+    // Callback from edit dialog when transaction is updated
     @Override
-    public void onTransactionUpdated(List<TransactionItem> transactions, int i) {
-        adapter.notifyItemChanged(i);
-        updateSummary(transactions);
-        transactionCacheMap.put(currentDate, new TransactionCacheEntry(new ArrayList<>(transactions), System.currentTimeMillis()));
+    public void onTransactionChanged() {
+        updateSummary(masterTransactions);
     }
 
-    // Callback from dialog when transaction is deleted
+    // Callback from add dialog when transaction is added
     @Override
-    public void onTransactionDeleted(List<TransactionItem> transactions, int i) {
-        adapter.notifyItemRemoved(i);
-        updateSummary(transactions);
-        transactionCacheMap.put(currentDate, new TransactionCacheEntry(new ArrayList<>(transactions), System.currentTimeMillis()));
+    public void onTransactionAdded(TransactionItem newItem) {
+        masterTransactions.add(masterTransactions.size(), newItem);
+        adapter.notifyItemInserted(masterTransactions.size() - 1);
+        updateSummary(masterTransactions);
     }
+
 
     private String getSheetName(String dateStr) {
         try {

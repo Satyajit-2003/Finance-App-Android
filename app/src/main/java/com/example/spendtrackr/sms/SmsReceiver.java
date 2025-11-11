@@ -10,6 +10,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.spendtrackr.api.AddTransactionResponse;
 import com.example.spendtrackr.api.ApiClient;
 import com.example.spendtrackr.api.ApiRetryHandler;
 import com.example.spendtrackr.api.ApiService;
@@ -77,9 +78,9 @@ public class SmsReceiver extends BroadcastReceiver {
         body.put("date", isoDate);
         Log.i(TAG, "Sending to API, " + isoDate + messageBody);
 
-        ApiRetryHandler.enqueueWithRetry(apiService.logTransaction(body), 0, new Callback<BaseResponse<Void>>() {
+        ApiRetryHandler.enqueueWithRetry(apiService.logTransaction(body), 0, new Callback<BaseResponse<AddTransactionResponse>>() {
             @Override
-            public void onResponse(@NonNull Call<BaseResponse<Void>> call, @NonNull Response<BaseResponse<Void>> response) {
+            public void onResponse(@NonNull Call<BaseResponse<AddTransactionResponse>> call, @NonNull Response<BaseResponse<AddTransactionResponse>> response) {
                 String apiMessage = response.body() != null ? response.body().message : response.message();
                 if (!response.isSuccessful() || response.body() == null) {
                     Log.i(TAG, "API Status Code: " + response.code() + ", " + apiMessage);
@@ -92,7 +93,7 @@ public class SmsReceiver extends BroadcastReceiver {
             }
 
             @Override
-            public void onFailure(@NonNull Call<BaseResponse<Void>> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<BaseResponse<AddTransactionResponse>> call, @NonNull Throwable t) {
                 Log.e(TAG, "API Call Failed: " + t.getMessage());
                 NotificationHelper.showErrorNotification(context, "API Failure logTransaction", t.getMessage());
             }

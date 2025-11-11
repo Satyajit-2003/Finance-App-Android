@@ -48,6 +48,7 @@ public class EditTransactionDialog extends DialogFragment {
     private static final String FIELD_TYPE = "Type";
     private static final String FIELD_FRIEND_SPLIT = "Friend Split";
     private static final String FIELD_NOTES = "Notes";
+    private static final String FIELD_ACCOUNT = "Account";
 
     private TransactionItem transactionItem;
     private String sheetName;
@@ -88,6 +89,9 @@ public class EditTransactionDialog extends DialogFragment {
         AutoCompleteTextView categoryDropdown = view.findViewById(R.id.categoryDropdown);
         TextInputEditText inputFriendSplit = view.findViewById(R.id.inputFriendSplit);
         TextInputEditText inputNotes = view.findViewById(R.id.inputNotes);
+        TextInputEditText inputAccountNumber = view.findViewById(R.id.transactionAccountNumber);
+        AutoCompleteTextView transactionMethodDropdown = view.findViewById(R.id.transactionMethod);
+
         MaterialButton buttonDelete = view.findViewById(R.id.deleteButton);
         MaterialButton buttonSave = view.findViewById(R.id.saveButton);
         MaterialButton cancelButton = view.findViewById(R.id.cancelButton);
@@ -96,19 +100,41 @@ public class EditTransactionDialog extends DialogFragment {
         MaterialButton fullSplitButton = view.findViewById(R.id.fullSplitButton);
 
 
-        // Populate dropdown
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+        // Populate category dropdown
+        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(
                 requireContext(),
                 android.R.layout.simple_spinner_dropdown_item,
                 CategoryManager.getCategoryColorMap().keySet().toArray(new String[0])
         );
-        categoryDropdown.setAdapter(adapter);
+        categoryDropdown.setAdapter(categoryAdapter);
+
+        // Populate method dropdown
+        ArrayAdapter<String> methodAdapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_spinner_dropdown_item,
+                new String[]{"CARD", "ACCOUNT"}
+        );
+        transactionMethodDropdown.setAdapter(methodAdapter);
 
         // Pre-fill data
         inputAmount.setText(transactionItem.amount);
         categoryDropdown.setText(transactionItem.type, false);
         inputFriendSplit.setText((Objects.equals(transactionItem.friendSplit, "0")) ? "" : String.valueOf(transactionItem.friendSplit));
         inputNotes.setText(transactionItem.notes);
+        String orgAccountString = transactionItem.account;
+        if (orgAccountString != null && orgAccountString.contains("-")) {
+            String[] parts = orgAccountString.split("-");
+            // Tran method
+            String accountName = parts[0].trim();
+            transactionMethodDropdown.setText(accountName, false);
+
+            // Account number
+            String accountNumber = parts[1].trim(); // "1234"
+            if (accountNumber.matches("\\d+")) {
+                inputAccountNumber.setText(accountNumber);
+            }
+        }
+
 
         // 50:50 logic
         fiftyFiftyButton.setOnClickListener(v -> {
@@ -161,11 +187,19 @@ public class EditTransactionDialog extends DialogFragment {
                 return;
             }
 
+            String tranMethod = Objects.requireNonNull(transactionMethodDropdown.getText()).toString();
+            String accNumber = Objects.requireNonNull(inputAccountNumber.getText()).toString();
+
+            String accountField = String.format("%s - %s", tranMethod, accNumber);
+
+
             Map<String, String> updates = new HashMap<>();
             if (!transactionItem.amount.equals(amountStr)) updates.put(FIELD_AMOUNT, amountStr);
             if (!transactionItem.type.equals(categoryDropdown.getText().toString())) updates.put(FIELD_TYPE, categoryDropdown.getText().toString());
             if (!transactionItem.friendSplit.equals(friendSplitStr)) updates.put(FIELD_FRIEND_SPLIT, friendSplitStr);
             if (!transactionItem.notes.equals(Objects.requireNonNull(inputNotes.getText()).toString())) updates.put(FIELD_NOTES, inputNotes.getText().toString());
+            if (!transactionItem.account.equals(accountField))
+                updates.put(FIELD_ACCOUNT, accountField);
 
             if (updates.isEmpty()) {
                 dismiss();
@@ -188,6 +222,7 @@ public class EditTransactionDialog extends DialogFragment {
                         transactionItem.friendSplit = friendSplitStr;
                         transactionItem.amountBorne = String.valueOf(Double.parseDouble(transactionItem.amount) - friendSplit);
                         transactionItem.notes = inputNotes.getText().toString();
+                        transactionItem.account = accountField;
                         listener.onTransactionUpdated(transactionItem);
                         dismiss();
                     } else {

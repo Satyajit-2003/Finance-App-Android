@@ -82,6 +82,53 @@
             android:layout_marginStart="8dp" />
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_marginTop="4dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- Dropdown Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Transaction Method"
+            style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
+            app:endIconDrawable="@drawable/ic_drop_down">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/transactionMethod"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:textColor="@color/white"
+                android:dropDownHeight="105dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- 4-Digit Entry Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="12dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="16dp"
+            android:hint="Acc/Card Num"
+            app:placeholderText="1234">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/transactionAccountNumber"
+                android:inputType="number"
+                android:maxLength="4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
+
+
     <com.google.android.material.textfield.TextInputLayout
         android:layout_marginTop="12dp"
         android:layout_width="match_parent"
@@ -122,7 +169,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/edit_dialog_cancel_button"
-            android:layout_marginEnd="8dp" /> <!-- margin on the right -->
+            android:layout_marginEnd="8dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/saveButton"

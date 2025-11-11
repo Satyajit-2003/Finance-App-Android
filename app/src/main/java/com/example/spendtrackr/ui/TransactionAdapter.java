@@ -1,5 +1,6 @@
 package com.example.spendtrackr.ui;
 
+import android.util.Log;
 import android.view.*;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -20,10 +21,12 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     private final String sheetName;
     private final FragmentManager fragmentManager;
     private final OnTransactionEditedListener listener;
+    private final String TAG = "TransactionAdopter";
 
     public interface OnTransactionEditedListener {
-        void onTransactionUpdated(TransactionItem updatedItem);
-        void onTransactionDeleted(int rowIndex);
+        void onTransactionUpdated(List<TransactionItem> transactions, int i);
+
+        void onTransactionDeleted(List<TransactionItem> transactions, int i);
     }
 
     public TransactionAdapter(List<TransactionItem> transactionList, String sheetName,
@@ -70,18 +73,25 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
     @Override
     public void onTransactionUpdated(TransactionItem updatedItem) {
+        int idx = -1;
         for (int i = 0; i < transactions.size(); i++) {
             if (transactions.get(i).rowIndex == updatedItem.rowIndex) {
                 transactions.set(i, updatedItem);
-                notifyItemChanged(i);
-                listener.onTransactionUpdated(updatedItem);
+                idx = i;
                 break;
             }
+        }
+
+        if (idx != -1) {
+            listener.onTransactionUpdated(transactions, idx);
+        } else {
+            Log.e(TAG, String.format("Given rowIndex %d, not found for updation.", updatedItem.rowIndex));
         }
     }
 
     @Override
     public void onTransactionDeleted(int rowIndex) {
+        int idx = -1;
         for (int i = 0; i < transactions.size(); i++) {
             if (transactions.get(i).rowIndex == rowIndex) {
                 transactions.remove(i);
@@ -91,10 +101,14 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
                 for (int j = i; j < transactions.size(); j++) {
                     transactions.get(j).rowIndex -= 1;
                 }
-                listener.onTransactionDeleted(i);
-
+                idx = i;
                 break;
             }
+        }
+        if (idx != -1) {
+            listener.onTransactionDeleted(transactions, idx);
+        } else {
+            Log.e(TAG, String.format("Given rowIndex %d, not found for deletion", rowIndex));
         }
     }
 

@@ -171,30 +171,18 @@ public class TransactionFragment extends Fragment implements TransactionAdapter.
 
     // Callback from dialog when transaction is updated
     @Override
-    public void onTransactionUpdated(TransactionItem updatedItem) {
-        for (int i = 0; i < transactions.size(); i++) {
-            if (transactions.get(i).rowIndex == updatedItem.rowIndex) {
-                transactions.set(i, updatedItem);
-                adapter.notifyItemChanged(i);
-                updateSummary(transactions);
-                transactionCacheMap.put(currentDate, new TransactionCacheEntry(new ArrayList<>(transactions), System.currentTimeMillis()));
-                break;
-            }
-        }
+    public void onTransactionUpdated(List<TransactionItem> transactions, int i) {
+        adapter.notifyItemChanged(i);
+        updateSummary(transactions);
+        transactionCacheMap.put(currentDate, new TransactionCacheEntry(new ArrayList<>(transactions), System.currentTimeMillis()));
     }
 
     // Callback from dialog when transaction is deleted
     @Override
-    public void onTransactionDeleted(int rowIndex) {
-        for (int i = 0; i < transactions.size(); i++) {
-            if (transactions.get(i).rowIndex == rowIndex) {
-                transactions.remove(i);
-                adapter.notifyItemRemoved(i);
-                updateSummary(transactions);
-                transactionCacheMap.put(currentDate, new TransactionCacheEntry(new ArrayList<>(transactions), System.currentTimeMillis()));
-                break;
-            }
-        }
+    public void onTransactionDeleted(List<TransactionItem> transactions, int i) {
+        adapter.notifyItemRemoved(i);
+        updateSummary(transactions);
+        transactionCacheMap.put(currentDate, new TransactionCacheEntry(new ArrayList<>(transactions), System.currentTimeMillis()));
     }
 
     private String getSheetName(String dateStr) {

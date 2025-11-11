@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -21,11 +20,11 @@ import com.example.spendtrackr.api.BaseResponse;
 import com.example.spendtrackr.api.TransactionItem;
 import com.example.spendtrackr.utils.CategoryManager;
 import com.example.spendtrackr.utils.NotificationHelper;
+import com.example.spendtrackr.utils.ApiParametersHelper;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -41,15 +40,6 @@ public class EditTransactionDialog extends DialogFragment {
         void onTransactionDeleted(int rowIndex);
     }
 
-    private static final String ARG_ITEM = "transaction_item";
-    private static final String ARG_SHEET_NAME = "sheet_name";
-
-    private static final String FIELD_AMOUNT = "Amount";
-    private static final String FIELD_TYPE = "Type";
-    private static final String FIELD_FRIEND_SPLIT = "Friend Split";
-    private static final String FIELD_NOTES = "Notes";
-    private static final String FIELD_ACCOUNT = "Account";
-
     private TransactionItem transactionItem;
     private String sheetName;
     private OnTransactionUpdatedListener listener;
@@ -61,8 +51,8 @@ public class EditTransactionDialog extends DialogFragment {
     public static EditTransactionDialog newInstance(TransactionItem item, String sheetName) {
         EditTransactionDialog fragment = new EditTransactionDialog();
         Bundle args = new Bundle();
-        args.putSerializable(ARG_ITEM, item);
-        args.putString(ARG_SHEET_NAME, sheetName);
+        args.putSerializable(ApiParametersHelper.ARG_TRANSACTION_ITEM, item);
+        args.putString(ApiParametersHelper.ARG_SHEET_NAME, sheetName);
         fragment.setArguments(args);
         return fragment;
     }
@@ -82,8 +72,8 @@ public class EditTransactionDialog extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = getLayoutInflater().inflate(R.layout.dialog_edit_transaction, null);
         assert getArguments() != null;
-        transactionItem = (TransactionItem) getArguments().getSerializable(ARG_ITEM);
-        sheetName = getArguments().getString(ARG_SHEET_NAME);
+        transactionItem = (TransactionItem) getArguments().getSerializable(ApiParametersHelper.ARG_TRANSACTION_ITEM);
+        sheetName = getArguments().getString(ApiParametersHelper.ARG_SHEET_NAME);
 
         TextInputEditText inputAmount = view.findViewById(R.id.inputAmount);
         AutoCompleteTextView categoryDropdown = view.findViewById(R.id.categoryDropdown);
@@ -197,12 +187,16 @@ public class EditTransactionDialog extends DialogFragment {
 
 
             Map<String, String> updates = new HashMap<>();
-            if (!transactionItem.amount.equals(amountStr)) updates.put(FIELD_AMOUNT, amountStr);
-            if (!transactionItem.type.equals(categoryDropdown.getText().toString())) updates.put(FIELD_TYPE, categoryDropdown.getText().toString());
-            if (!transactionItem.friendSplit.equals(friendSplitStr)) updates.put(FIELD_FRIEND_SPLIT, friendSplitStr);
-            if (!transactionItem.notes.equals(Objects.requireNonNull(inputNotes.getText()).toString())) updates.put(FIELD_NOTES, inputNotes.getText().toString());
+            if (!transactionItem.amount.equals(amountStr))
+                updates.put(ApiParametersHelper.FIELD_AMOUNT, amountStr);
+            if (!transactionItem.type.equals(categoryDropdown.getText().toString()))
+                updates.put(ApiParametersHelper.FIELD_TYPE, categoryDropdown.getText().toString());
+            if (!transactionItem.friendSplit.equals(friendSplitStr))
+                updates.put(ApiParametersHelper.FIELD_FRIEND_SPLIT, friendSplitStr);
+            if (!transactionItem.notes.equals(Objects.requireNonNull(inputNotes.getText()).toString()))
+                updates.put(ApiParametersHelper.FIELD_NOTES, inputNotes.getText().toString());
             if (!transactionItem.account.equals(accountField))
-                updates.put(FIELD_ACCOUNT, accountField);
+                updates.put(ApiParametersHelper.FIELD_ACCOUNT, accountField);
 
             if (updates.isEmpty()) {
                 dismiss();
@@ -211,9 +205,9 @@ public class EditTransactionDialog extends DialogFragment {
 
             ApiService apiService = ApiClient.getApiService(requireContext());
             Map<String, Object> body = new HashMap<>();
-            body.put("sheet_name", sheetName);
-            body.put("row_index", transactionItem.rowIndex);
-            body.put("updates", updates);
+            body.put(ApiParametersHelper.ARG_SHEET_NAME, sheetName);
+            body.put(ApiParametersHelper.ARG_ROW_INDEX, transactionItem.rowIndex);
+            body.put(ApiParametersHelper.ARG_UPDATES, updates);
 
             apiService.updateTransaction(body).enqueue(new Callback<BaseResponse<Void>>() {
                 @Override
@@ -248,8 +242,8 @@ public class EditTransactionDialog extends DialogFragment {
                 .setPositiveButton("Delete", (dialog, which) -> {
                     ApiService apiService = ApiClient.getApiService(requireContext());
                     Map<String, Object> body = new HashMap<>();
-                    body.put("sheet_name", sheetName);
-                    body.put("row_index", transactionItem.rowIndex);
+                    body.put(ApiParametersHelper.ARG_SHEET_NAME, sheetName);
+                    body.put(ApiParametersHelper.ARG_ROW_INDEX, transactionItem.rowIndex);
 
                     apiService.deleteTransaction(body).enqueue(new Callback<BaseResponse<Void>>() {
                         @Override

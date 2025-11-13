@@ -144,14 +144,14 @@ public class TransactionFragment extends Fragment implements TransactionAdapter.
                     transactionCacheMap.put(date, new TransactionCacheEntry(new ArrayList<>(data.transactions), now));
                 } else {
                     String apiMessage = response.body() != null ? response.body().message : response.message();
-                    NotificationHelper.showErrorNotification(requireContext(), "getTransactionsByDate Code: " + response.code(), apiMessage);
+                    Toast.makeText(requireContext(), "Failed getting transactions (" + response.code() + "): " + apiMessage, Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<BaseResponse<TransactionResponse>> call, @NonNull Throwable t) {
                 swipeRefreshLayout.setRefreshing(false);
-                NotificationHelper.showErrorNotification(requireContext(), "API Failure getTransactionsByDate", t.getMessage());
+                Toast.makeText(requireContext(), "Failed to fetch transactions: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

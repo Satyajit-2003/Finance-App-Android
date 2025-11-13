@@ -242,14 +242,15 @@ public class ChartFragment extends Fragment {
                     displayStats(freshStatsResponse);
                 } else {
                     String apiMessage = response.body() != null ? response.body().message : response.message();
-                    NotificationHelper.showErrorNotification(requireContext(), "getStats Code: " + response.code(), apiMessage);
+                    Toast.makeText(requireContext(), "Error getting stats code: " + response.code() + " — " + apiMessage, Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<BaseResponse<StatsResponse>> call, @NonNull Throwable t) {
                 swipeRefreshLayout.setRefreshing(false);
-                NotificationHelper.showErrorNotification(requireContext(), "API Failure getStats", t.getMessage());
+                Toast.makeText(requireContext(), "API Failure getting stats: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+
             }
         });
 

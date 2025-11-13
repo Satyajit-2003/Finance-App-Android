@@ -72,6 +72,7 @@
     <string name="open_excel_worksheet_button_text">Open Excel Worksheet</string>
     <string name="show_success_notifications_toggle_text">Show successful SMS Log notifications</string>
     <string name="show_failure_notifications_toggle_text">Show failed SMS Log notifications</string>
+    <string name="show_error_notifications_toggle_text">Show error SMS Log notifications</string>
     <string name="edit_dialog_transaction_method_text">Method</string>
     <string name="edit_dialog_account_number_text">Acc/Card Num</string>
     <string name="filter_card">Filter</string>

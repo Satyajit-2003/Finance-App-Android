@@ -15,11 +15,11 @@ import com.example.spendtrackr.R;
 
 public class NotificationHelper {
 
-    private static final String CHANNEL_ID = "api_error_channel";
-    private static final String CHANNEL_NAME = "API Error Alerts";
-    private static final String CHANNEL_DESC = "Notifies when API calls fail";
+    private static final String CHANNEL_ID = "api_notification_channel";
+    private static final String CHANNEL_NAME = "API Alerts";
+    private static final String CHANNEL_DESC = "Notifies of API calls";
 
-    public static void showErrorNotification(Context context, String title, String message) {
+    public static void showNotification(Context context, String title, String message) {
         createChannelIfNeeded(context);
 
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS)
@@ -40,18 +40,16 @@ public class NotificationHelper {
 
 
     private static void createChannelIfNeeded(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID,
-                    CHANNEL_NAME,
-                    NotificationManager.IMPORTANCE_HIGH
-            );
-            channel.setDescription(CHANNEL_DESC);
+        NotificationChannel channel = new NotificationChannel(
+                CHANNEL_ID,
+                CHANNEL_NAME,
+                NotificationManager.IMPORTANCE_HIGH
+        );
+        channel.setDescription(CHANNEL_DESC);
 
-            NotificationManager manager = context.getSystemService(NotificationManager.class);
-            if (manager != null) {
-                manager.createNotificationChannel(channel);
-            }
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        if (manager != null) {
+            manager.createNotificationChannel(channel);
         }
     }
 }

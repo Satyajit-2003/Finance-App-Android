@@ -55,6 +55,7 @@ public class SettingsFragment extends Fragment {
         TextInputLayout apiKeyPlaceHolder = view.findViewById(R.id.apiKeyPlaceHolder);
         MaterialSwitch successNotificationToggle = view.findViewById(R.id.switchShowSuccessNotification);
         MaterialSwitch failureNotificationToggle = view.findViewById(R.id.switchShowFailureNotification);
+        MaterialSwitch errorNotificationToggle = view.findViewById(R.id.switchShowErrorNotification);
 
         // Set initial states from SharedPreferences
         editBaseUrl.setText(SharedPrefHelper.getBaseUrl(requireContext()));
@@ -66,6 +67,9 @@ public class SettingsFragment extends Fragment {
         failureNotificationToggle.setChecked(
                 SharedPrefHelper.getShowFailureNotification(requireContext())
         );
+        errorNotificationToggle.setChecked(
+                SharedPrefHelper.getShowErrorNotification(requireContext())
+        );
 
 
         successNotificationToggle.setOnCheckedChangeListener((buttonView, isChecked) ->
@@ -74,6 +78,10 @@ public class SettingsFragment extends Fragment {
 
         failureNotificationToggle.setOnCheckedChangeListener((buttonView, isChecked) ->
                 SharedPrefHelper.setShowFailureNotification(requireContext(), isChecked)
+        );
+
+        errorNotificationToggle.setOnCheckedChangeListener((buttonView, isChecked) ->
+                SharedPrefHelper.setShowErrorNotification(requireContext(), isChecked)
         );
 
 

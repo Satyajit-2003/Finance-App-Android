@@ -24,6 +24,10 @@ public class SharedPrefHelper {
     private static final String KEY_SHOW_FAILURE_NOTIFICATION = "show_failure_notification";
     private static final boolean DEFAULT_SHOW_FAILURE = true;
 
+    // Error failure
+    private static final String KEY_SHOW_ERROR_NOTIFICATION = "show_error_notification";
+    private static final boolean DEFAULT_SHOW_ERROR = true;
+
 
     // ======== BASE URL ========
     public static String getBaseUrl(Context context) {
@@ -77,5 +81,16 @@ public class SharedPrefHelper {
     public static void setShowFailureNotification(Context context, boolean enabled) {
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_SHOW_FAILURE_NOTIFICATION, enabled).apply();
+    }
+
+    // ======== FAILURE NOTIFICATION ========
+    public static boolean getShowErrorNotification(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(KEY_SHOW_ERROR_NOTIFICATION, DEFAULT_SHOW_ERROR);
+    }
+
+    public static void setShowErrorNotification(Context context, boolean enabled) {
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_SHOW_ERROR_NOTIFICATION, enabled).apply();
     }
 }

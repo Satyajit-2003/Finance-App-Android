@@ -16,6 +16,7 @@ import com.example.spendtrackr.api.ApiRetryHandler;
 import com.example.spendtrackr.api.ApiService;
 import com.example.spendtrackr.api.BaseResponse;
 import com.example.spendtrackr.utils.NotificationHelper;
+import com.example.spendtrackr.utils.SharedPrefHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -75,26 +76,35 @@ public class SmsReceiver extends BroadcastReceiver {
         Map<String, Object> body = new HashMap<>();
         body.put("text", messageBody);
         body.put("date", isoDate);
-        Log.i(TAG, "Sending to API, " + isoDate + messageBody);
 
         ApiRetryHandler.enqueueWithRetry(apiService.logTransaction(body), 0, new Callback<BaseResponse<AddTransactionResponse>>() {
             @Override
             public void onResponse(@NonNull Call<BaseResponse<AddTransactionResponse>> call, @NonNull Response<BaseResponse<AddTransactionResponse>> response) {
                 String apiMessage = response.body() != null ? response.body().message : response.message();
-                if (!response.isSuccessful() || response.body() == null) {
+                if (response.isSuccessful() && response.body() != null) {
                     Log.i(TAG, "API Status Code: " + response.code() + ", " + apiMessage);
                     if (response.code() == 201){
-                        NotificationHelper.showErrorNotification(context, "logTransaction Success: " + response.code(), apiMessage);
+                        if (SharedPrefHelper.getShowSuccessNotification(context)) {
+                            NotificationHelper.showNotification(context, "SMS Log Successful - " + response.code(), apiMessage);
+                        }
+                    } else {
+                        if (SharedPrefHelper.getShowFailureNotification(context)) {
+                            NotificationHelper.showNotification(context, "SMS not transaction - " + response.code(), apiMessage);
+                        }
                     }
                 } else {
-                    NotificationHelper.showErrorNotification(context, "logTransaction Failure", apiMessage);
+                    if (SharedPrefHelper.getShowErrorNotification(context)) {
+                        NotificationHelper.showNotification(context, "API Error - " + response.code(), apiMessage);
+                    }
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<BaseResponse<AddTransactionResponse>> call, @NonNull Throwable t) {
                 Log.e(TAG, "API Call Failed: " + t.getMessage());
-                NotificationHelper.showErrorNotification(context, "API Failure logTransaction", t.getMessage());
+                if (SharedPrefHelper.getShowErrorNotification(context)) {
+                    NotificationHelper.showNotification(context, "API Failure logTransaction", t.getMessage());
+                }
             }
         });
 

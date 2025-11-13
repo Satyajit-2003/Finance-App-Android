@@ -221,15 +221,16 @@ public class EditTransactionDialog extends DialogFragment {
                         transactionItem.notes = inputNotes.getText().toString();
                         transactionItem.account = accountField;
                         listener.onTransactionUpdated(transactionItem);
+                        Toast.makeText(requireContext(), "Update Success (" + response.code() + "): " + response.message(), Toast.LENGTH_SHORT).show();
                         dismiss();
                     } else {
-                        NotificationHelper.showErrorNotification(requireContext(), "Update Error", response.message());
+                        Toast.makeText(requireContext(), "Update Error (" + response.code() + "): " + response.message(), Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<BaseResponse<Void>> call, @NonNull Throwable t) {
-                    NotificationHelper.showErrorNotification(requireContext(), "Update Failed", t.getMessage());
+                    Toast.makeText(requireContext(), "Update Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         });
@@ -250,15 +251,16 @@ public class EditTransactionDialog extends DialogFragment {
                         public void onResponse(@NonNull Call<BaseResponse<Void>> call, @NonNull Response<BaseResponse<Void>> response) {
                             if (response.isSuccessful()) {
                                 listener.onTransactionDeleted(transactionItem.rowIndex);
+                                Toast.makeText(requireContext(), "Delete Success (" + response.code() + "): " + response.message(), Toast.LENGTH_SHORT).show();
                                 dismiss();
                             } else {
-                                NotificationHelper.showErrorNotification(requireContext(), "Delete Failed", response.message());
+                                Toast.makeText(requireContext(), "Delete Failed (" + response.code() + "): " + response.message(), Toast.LENGTH_SHORT).show();
                             }
                         }
 
                         @Override
                         public void onFailure(@NonNull Call<BaseResponse<Void>> call, @NonNull Throwable t) {
-                            NotificationHelper.showErrorNotification(requireContext(), "Delete Failed", t.getMessage());
+                            Toast.makeText(requireContext(), "Delete Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
                 }).show());

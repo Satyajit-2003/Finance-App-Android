@@ -20,11 +20,9 @@ import com.example.spendtrackr.api.ApiService;
 import com.example.spendtrackr.api.ApiClient;
 import com.example.spendtrackr.api.AuthCheckResponse;
 import com.example.spendtrackr.api.BaseResponse;
-import com.example.spendtrackr.api.HealthResponse;
 import com.example.spendtrackr.utils.SharedPrefHelper;
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputLayout;
-
-import org.w3c.dom.Text;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -55,9 +53,29 @@ public class SettingsFragment extends Fragment {
         TextView authStatusText = view.findViewById(R.id.authStatusText);
         Button excelSheetButton = view.findViewById(R.id.excelSheetButton);
         TextInputLayout apiKeyPlaceHolder = view.findViewById(R.id.apiKeyPlaceHolder);
+        MaterialSwitch successNotificationToggle = view.findViewById(R.id.switchShowSuccessNotification);
+        MaterialSwitch failureNotificationToggle = view.findViewById(R.id.switchShowFailureNotification);
 
+        // Set initial states from SharedPreferences
         editBaseUrl.setText(SharedPrefHelper.getBaseUrl(requireContext()));
         editApiKey.setText(SharedPrefHelper.getApiKey(requireContext()));
+
+        successNotificationToggle.setChecked(
+                SharedPrefHelper.getShowSuccessNotification(requireContext())
+        );
+        failureNotificationToggle.setChecked(
+                SharedPrefHelper.getShowFailureNotification(requireContext())
+        );
+
+
+        successNotificationToggle.setOnCheckedChangeListener((buttonView, isChecked) ->
+                SharedPrefHelper.setShowSuccessNotification(requireContext(), isChecked)
+        );
+
+        failureNotificationToggle.setOnCheckedChangeListener((buttonView, isChecked) ->
+                SharedPrefHelper.setShowFailureNotification(requireContext(), isChecked)
+        );
+
 
         buttonSave.setOnClickListener(v -> {
             String newUrl = editBaseUrl.getText().toString().trim();

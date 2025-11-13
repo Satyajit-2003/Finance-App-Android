@@ -59,7 +59,7 @@
             android:id="@+id/excelSheetButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Open Excel Worksheet"
+            android:text="@string/open_excel_worksheet_button_text"
             android:enabled="false"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="15dp" />
@@ -94,6 +94,29 @@
                 android:gravity="center" />
 
         </LinearLayout>
+
+        <!-- Notification Toggles -->
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/switchShowSuccessNotification"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/show_success_notifications_toggle_text"
+            android:checked="true"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="8dp"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+            app:useMaterialThemeColors="true" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/switchShowFailureNotification"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/show_failure_notifications_toggle_text"
+            android:checked="true"
+            android:layout_marginBottom="16dp"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+            app:useMaterialThemeColors="true" />
+
 
     </LinearLayout>
 

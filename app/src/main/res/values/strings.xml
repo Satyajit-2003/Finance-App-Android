@@ -69,5 +69,15 @@
     <string name="edit_dialog_cancel_button">Cancel</string>
     <string name="edit_dialog_save_button">Save</string>
     <string name="edit_dialog_full_split">Full</string>
+    <string name="open_excel_worksheet_button_text">Open Excel Worksheet</string>
+    <string name="show_success_notifications_toggle_text">Show successful SMS Log notifications</string>
+    <string name="show_failure_notifications_toggle_text">Show failed SMS Log notifications</string>
+    <string name="edit_dialog_transaction_method_text">Method</string>
+    <string name="edit_dialog_account_number_text">Acc/Card Num</string>
+    <string name="filter_card">Filter</string>
+    <string name="month_year_picker_month_text">Month</string>
+    <string name="month_year_picker_year_text">Year</string>
+    <string name="filter_text_filter_all">Filter (All)</string>
+    <string name="filter_text_n">Filter (%d)</string>
 
 </resources>

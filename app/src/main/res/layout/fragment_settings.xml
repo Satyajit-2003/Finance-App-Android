@@ -129,6 +129,16 @@
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
             app:useMaterialThemeColors="true" />
 
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/switchShowErrorNotification"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/show_error_notifications_toggle_text"
+            android:checked="true"
+            android:layout_marginBottom="16dp"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+            app:useMaterialThemeColors="true" />
+
 
     </LinearLayout>
 

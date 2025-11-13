@@ -129,7 +129,6 @@
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
             app:useMaterialThemeColors="true" />
 
-
     </LinearLayout>
 
 </ScrollView>

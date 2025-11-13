@@ -1,6 +1,5 @@
 package com.example.spendtrackr.ui;
 
-import android.util.Log;
 import android.view.*;
 import android.widget.ImageButton;
 import android.widget.TextView;

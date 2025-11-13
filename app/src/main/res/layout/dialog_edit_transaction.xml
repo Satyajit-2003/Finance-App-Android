@@ -86,6 +86,7 @@
         android:layout_marginTop="4dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:baselineAligned="false"
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
@@ -94,7 +95,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Method"
+            android:hint="@string/edit_dialog_transaction_method_text"
             style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
             app:endIconDrawable="@drawable/ic_drop_down">
 
@@ -115,7 +116,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="16dp"
-            android:hint="Acc/Card Num"
+            android:hint="@string/edit_dialog_account_number_text"
             app:placeholderText="1234">
 
             <com.google.android.material.textfield.TextInputEditText

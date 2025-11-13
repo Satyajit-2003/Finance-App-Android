@@ -4,7 +4,6 @@ import androidx.collection.ArraySet;
 
 import com.example.spendtrackr.R;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

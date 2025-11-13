@@ -9,7 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:hint="Month"
+        android:hint="@string/month_year_picker_month_text"
         app:endIconMode="dropdown_menu">
 
         <com.google.android.material.textfield.MaterialAutoCompleteTextView
@@ -22,7 +22,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="Year"
+        android:hint="@string/month_year_picker_year_text"
         app:endIconMode="dropdown_menu">
 
         <com.google.android.material.textfield.MaterialAutoCompleteTextView

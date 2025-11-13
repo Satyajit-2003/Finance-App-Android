@@ -1,7 +1,6 @@
 package com.example.spendtrackr.ui;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.ArraySet;
 import android.util.Log;
@@ -9,8 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -146,9 +143,9 @@ public class ChartFragment extends Fragment {
                         selectedCategories.addAll(tempSelectedCategories);
                         fetchAndDisplayStats(currentMonthYear);
                         if (selectedCategories.size() == allCategories.length) {
-                            filterTextView.setText("Filter (All)");
+                            filterTextView.setText(R.string.filter_text_filter_all);
                         } else {
-                            filterTextView.setText("Filter (" + selectedCategories.size() + ")");
+                            filterTextView.setText(String.format(getString(R.string.filter_text_n), selectedCategories.size()));
                         }
                     })
                     .setNegativeButton("Cancel", null);
@@ -169,9 +166,9 @@ public class ChartFragment extends Fragment {
         monthYearSelectorCard.setOnClickListener(v -> showMonthYearPicker());
 
         if (selectedCategories.size() == allCategories.length) {
-            filterTextView.setText("Filter (All)");
+            filterTextView.setText(R.string.filter_text_filter_all);
         } else {
-            filterTextView.setText("Filter (" + selectedCategories.size() + ")");
+            filterTextView.setText(String.format(getString(R.string.filter_text_n), selectedCategories.size()));
         }
 
         // Fetch only once on view created

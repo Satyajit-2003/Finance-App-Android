@@ -6,10 +6,45 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp">
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/monthYearSelectorCard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:layout_gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:strokeColor="@color/md_theme_onPrimaryContainer"
+            app:strokeWidth="1dp">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/summaryTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:text="@string/summary_header_placeholder"
+                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                android:textColor="@color/md_theme_onPrimary"
+                android:drawableEnd="@drawable/ic_calendar_month"
+                android:drawablePadding="8dp" />
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+            android:padding="16dp"
+            android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -18,30 +53,31 @@
             android:gravity="center_horizontal">
 
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/monthYearSelectorCard"
+                android:id="@+id/filterCard"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp"
-                android:layout_gravity="center_horizontal"
+                android:layout_gravity="end"
                 android:clickable="true"
                 android:focusable="true"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="4dp"
-                app:strokeColor="@color/md_theme_onPrimaryContainer"
+                app:strokeColor="@color/md_theme_onSecondaryContainer"
                 app:strokeWidth="1dp">
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/summaryTextView"
+                    android:id="@+id/filterText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="12dp"
-                    android:text="@string/summary_header_placeholder"
-                    android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                    android:text="Filter"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                     android:textColor="@color/md_theme_onPrimary"
-                    android:drawableEnd="@drawable/ic_calendar_month"
+                    android:drawableEnd="@drawable/ic_filter_icon"
                     android:drawablePadding="8dp" />
             </com.google.android.material.card.MaterialCardView>
+
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/notCategorizedWarningText"
@@ -51,7 +87,19 @@
                 android:textColor="@color/yellow"
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="16dp"/>
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/noTransactionsWarningText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="@color/yellow"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
 
 
             <com.google.android.material.card.MaterialCardView
@@ -133,6 +181,8 @@
 
         </LinearLayout>
 
-    </ScrollView>
+        </androidx.core.widget.NestedScrollView>
+
+    </LinearLayout>
 
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

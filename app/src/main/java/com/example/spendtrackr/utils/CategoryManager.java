@@ -1,9 +1,12 @@
 package com.example.spendtrackr.utils;
 
+import androidx.collection.ArraySet;
+
 import com.example.spendtrackr.R;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CategoryManager {
@@ -49,6 +52,20 @@ public class CategoryManager {
         return colorRes;
     }
 
+    public static ArraySet<String> getDefaultSelectedCategories() {
+        ArraySet<String> defaults = new ArraySet<>();
+
+        defaults.addAll(CATEGORY_COLOR_MAP.keySet());
+
+        List.of(
+                "Investment",
+                "Loan Repayment",
+                "CC Bill",
+                "Rent"
+        ).forEach(defaults::remove);
+
+        return defaults;
+    }
 
     public static Map<String, Integer> getCategoryColorMap() {
         return CATEGORY_COLOR_MAP;

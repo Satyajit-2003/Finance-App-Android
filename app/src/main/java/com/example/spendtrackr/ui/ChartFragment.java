@@ -1,17 +1,23 @@
 package com.example.spendtrackr.ui;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.ArraySet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -39,6 +45,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -62,7 +69,6 @@ public class ChartFragment extends Fragment {
         }
     }
 
-
     public ChartFragment() {
         // Required empty public constructor
     }
@@ -72,11 +78,23 @@ public class ChartFragment extends Fragment {
     private String currentMonthYear = null;
     private final String TAG = "ChartFragment";
 
+    PieChart amountPieChart, countPieChart;
+    SwipeRefreshLayout swipeRefreshLayout;
+    NestedScrollView nestedScrollView;
+    TextView summaryTextView, filterTextView, totalSpendsTextView, totalTransactionsTextView, notCategorizedWarningTextView, noTransactionsWarningTextView;
+    RecyclerView summaryRecyclerView;
+    MaterialCardView monthYearSelectorCard, filterCard;
+
+    private String[] allCategories;
+    ArraySet<String> selectedCategories = new ArraySet<>(CategoryManager.getDefaultSelectedCategories());
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Map<String, Integer> categoryMap = CategoryManager.getCategoryColorMap();
+        allCategories = categoryMap.keySet().toArray(new String[0]);
+
         return inflater.inflate(R.layout.fragment_chart, container, false);
     }
 
@@ -84,31 +102,80 @@ public class ChartFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        PieChart amountPieChart = view.findViewById(R.id.amountPieChart);
-        PieChart countPieChart = view.findViewById(R.id.countPieChart);
-        SwipeRefreshLayout swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
-        TextView summaryTextView = view.findViewById(R.id.summaryTextView);
-        TextView totalSpendsTextView = view.findViewById(R.id.totalSpendsText);
-        TextView totalTransactionsTextView = view.findViewById(R.id.totalTransactionsText);
-        TextView notCategorizedWarningTextView = view.findViewById(R.id.notCategorizedWarningText);
-        RecyclerView summaryRecyclerView = view.findViewById(R.id.summaryRecyclerView);
-        MaterialCardView monthYearSelectorCard = view.findViewById(R.id.monthYearSelectorCard);
+        amountPieChart = view.findViewById(R.id.amountPieChart);
+        countPieChart = view.findViewById(R.id.countPieChart);
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
+        nestedScrollView = view.findViewById(R.id.scrollView);
+        summaryTextView = view.findViewById(R.id.summaryTextView);
+        totalSpendsTextView = view.findViewById(R.id.totalSpendsText);
+        totalTransactionsTextView = view.findViewById(R.id.totalTransactionsText);
+        notCategorizedWarningTextView = view.findViewById(R.id.notCategorizedWarningText);
+        noTransactionsWarningTextView = view.findViewById(R.id.noTransactionsWarningText);
+        summaryRecyclerView = view.findViewById(R.id.summaryRecyclerView);
+        monthYearSelectorCard = view.findViewById(R.id.monthYearSelectorCard);
+        filterCard = view.findViewById(R.id.filterCard);
+        filterTextView = view.findViewById(R.id.filterText);
 
         summaryRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
+        filterCard.setOnClickListener(v -> {
+            boolean[] checkedItems = new boolean[allCategories.length];
+            List<String> tempSelectedCategories = new ArrayList<>(selectedCategories);
+
+            for (int i = 0; i < allCategories.length; i++) {
+                checkedItems[i] = tempSelectedCategories.contains(allCategories[i]);
+            }
+
+            final boolean[] allSelected = {tempSelectedCategories.size() == allCategories.length};
+
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Select Categories")
+                    .setMultiChoiceItems(allCategories, checkedItems, (dialog, which, isChecked) -> {
+                        String category = allCategories[which];
+                        if (isChecked) {
+                            if (!tempSelectedCategories.contains(category)) {
+                                tempSelectedCategories.add(category);
+                            }
+                        } else {
+                            tempSelectedCategories.remove(category);
+                        }
+                        allSelected[0] = tempSelectedCategories.size() == allCategories.length;
+                    })
+                    .setPositiveButton("Apply", (dialog, which) -> {
+                        selectedCategories.clear();
+                        selectedCategories.addAll(tempSelectedCategories);
+                        fetchAndDisplayStats(currentMonthYear);
+                        if (selectedCategories.size() == allCategories.length) {
+                            filterTextView.setText("Filter (All)");
+                        } else {
+                            filterTextView.setText("Filter (" + selectedCategories.size() + ")");
+                        }
+                    })
+                    .setNegativeButton("Cancel", null);
+
+            AlertDialog dialog = builder.create();
+
+            dialog.show();
+        });
+
+        swipeRefreshLayout.setOnChildScrollUpCallback((parent, child) ->
+                nestedScrollView.canScrollVertically(-1));
 
         SimpleDateFormat sdf = new SimpleDateFormat("MMMM-yyyy", Locale.getDefault());
         currentMonthYear = sdf.format(new Date());
 
-        swipeRefreshLayout.setOnRefreshListener(() -> fetchAndDisplayStats(currentMonthYear, amountPieChart, countPieChart, swipeRefreshLayout, summaryTextView,
-                totalSpendsTextView, totalTransactionsTextView, notCategorizedWarningTextView, summaryRecyclerView));
+        swipeRefreshLayout.setOnRefreshListener(() -> fetchAndDisplayStats(currentMonthYear));
 
-        monthYearSelectorCard.setOnClickListener(v -> showMonthYearPicker(amountPieChart, countPieChart, swipeRefreshLayout, summaryTextView,
-                totalSpendsTextView, totalTransactionsTextView, notCategorizedWarningTextView, summaryRecyclerView));
+        monthYearSelectorCard.setOnClickListener(v -> showMonthYearPicker());
+
+        if (selectedCategories.size() == allCategories.length) {
+            filterTextView.setText("Filter (All)");
+        } else {
+            filterTextView.setText("Filter (" + selectedCategories.size() + ")");
+        }
 
         // Fetch only once on view created
-        fetchAndDisplayStats(currentMonthYear, amountPieChart, countPieChart, swipeRefreshLayout, summaryTextView,
-                totalSpendsTextView, totalTransactionsTextView, notCategorizedWarningTextView, summaryRecyclerView);
+        fetchAndDisplayStats(currentMonthYear);
     }
 
     private void setupPieChartWithOthers(PieChart pieChart, Map<String, Float> data, float total, String centerText) {
@@ -148,16 +215,15 @@ public class ChartFragment extends Fragment {
     }
 
 
-    private void fetchAndDisplayStats(String currentMonthYear, PieChart amountPieChart, PieChart countPieChart, SwipeRefreshLayout swipeRefreshLayout, TextView summaryTextView,
-                                      TextView totalSpendsTextView, TextView totalTransactionsTextView, TextView notCategorizedWarningTextView, RecyclerView summaryRecyclerView) {
+    private void fetchAndDisplayStats(String currentMonthYear) {
         StatsCacheEntry cacheEntry = statsCacheMap.get(currentMonthYear);
         long now = System.currentTimeMillis();
+        swipeRefreshLayout.scrollTo(0, 0);
 
         if (cacheEntry != null && (now - cacheEntry.fetchTime) < CACHE_DURATION_MS) {
             swipeRefreshLayout.setRefreshing(false);
             Log.i(TAG, "Using Cache for " + currentMonthYear);
-            displayStats(amountPieChart, countPieChart, summaryTextView, totalSpendsTextView,
-                    totalTransactionsTextView, notCategorizedWarningTextView, summaryRecyclerView, cacheEntry.statsResponse);
+            displayStats(cacheEntry.statsResponse);
             return;
         }
 
@@ -176,8 +242,7 @@ public class ChartFragment extends Fragment {
                     // Caching
                     statsCacheMap.put(currentMonthYear, new StatsCacheEntry(freshStatsResponse, now));
 
-                    displayStats(amountPieChart, countPieChart, summaryTextView, totalSpendsTextView, totalTransactionsTextView,
-                            notCategorizedWarningTextView, summaryRecyclerView, freshStatsResponse);
+                    displayStats(freshStatsResponse);
                 } else {
                     String apiMessage = response.body() != null ? response.body().message : response.message();
                     NotificationHelper.showErrorNotification(requireContext(), "getStats Code: " + response.code(), apiMessage);
@@ -193,18 +258,13 @@ public class ChartFragment extends Fragment {
 
     }
 
-    private void displayStats(PieChart amountPieChart, PieChart countPieChart, TextView summaryTextView, TextView totalSpendsTextView,
-                              TextView totalTransactionsTextView, TextView notCategorizedWarningTextView, RecyclerView summaryRecyclerView, StatsResponse stats) {
+    private void displayStats(StatsResponse stats) {
         Map<String, Float> amountData = new HashMap<>();
         Map<String, Float> countData = new HashMap<>();
         List<CategorySummaryAdapter.CategorySummaryItem> summaryItems = new ArrayList<>();
         int uncategorizedCount = 0;
         long totalAmountPieChart = (long) 0;
         int totalTransactionsPieChart = 0;
-
-
-        // Add for header:
-        summaryItems.add(new CategorySummaryAdapter.CategorySummaryItem("Header", 0.0, 0));
 
         for (Map.Entry<String, StatsResponse.CategoryInfo> entry : stats.categories.entrySet()) {
             String category = entry.getKey();
@@ -213,7 +273,7 @@ public class ChartFragment extends Fragment {
                 continue;
             }
 
-            if (CategoryManager.shouldIncludeInPieChart(category)){
+            if (selectedCategories.contains(category)) {
                 amountData.put(category, (float) entry.getValue().amount);
                 countData.put(category, (float) entry.getValue().count);
                 totalAmountPieChart += (long) entry.getValue().amount;
@@ -232,27 +292,34 @@ public class ChartFragment extends Fragment {
         totalSpendsTextView.setText(getString(R.string.total_spends_text, (float) totalAmountPieChart));
         totalTransactionsTextView.setText(getString(R.string.total_transactions_text, totalTransactionsPieChart));
 
+        summaryItems.sort(Comparator.comparingDouble(
+                (CategorySummaryAdapter.CategorySummaryItem item) -> item.amount
+        ).reversed());
+
+        // Add Header
+        summaryItems.add(0, new CategorySummaryAdapter.CategorySummaryItem("Header", 0.0, 0));
+
         if (uncategorizedCount > 0) {
+            notCategorizedWarningTextView.setVisibility(View.VISIBLE);
             notCategorizedWarningTextView.setText(getString(R.string.not_categorizedWarning_text, uncategorizedCount));
         } else {
+            notCategorizedWarningTextView.setVisibility(View.GONE);
             notCategorizedWarningTextView.setText("");
         }
 
         if (summaryItems.size() > 1){
             summaryRecyclerView.setAdapter(new CategorySummaryAdapter(summaryItems));
+            noTransactionsWarningTextView.setVisibility(View.GONE);
         } else {
             List<CategorySummaryAdapter.CategorySummaryItem> itemList = new ArrayList<>();
             summaryRecyclerView.setAdapter(new CategorySummaryAdapter(itemList));
-            notCategorizedWarningTextView.setText( notCategorizedWarningTextView.getText() +
-                    getString(R.string.no_transaction_or_sheet_Warning, stats.monthYear));
+            noTransactionsWarningTextView.setVisibility(View.VISIBLE);
+            noTransactionsWarningTextView.setText(getString(R.string.no_transaction_or_sheet_Warning, stats.monthYear));
         }
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private void showMonthYearPicker(
-            PieChart amountPieChart, PieChart countPieChart, SwipeRefreshLayout swipeRefreshLayout,
-            TextView summaryTextView, TextView totalSpendsTextView, TextView totalTransactionsTextView,
-            TextView notCategorizedWarningTextView, RecyclerView summaryRecyclerView) {
+    private void showMonthYearPicker() {
 
         LayoutInflater inflater = LayoutInflater.from(getContext());
         View dialogView = inflater.inflate(R.layout.month_year_picker_dialog, null);
@@ -320,8 +387,7 @@ public class ChartFragment extends Fragment {
 
                     String selectedMonthYear = new SimpleDateFormat("MMMM-yyyy", Locale.getDefault()).format(selectedDate.getTime());
 
-                    fetchAndDisplayStats(selectedMonthYear, amountPieChart, countPieChart, swipeRefreshLayout, summaryTextView,
-                            totalSpendsTextView, totalTransactionsTextView, notCategorizedWarningTextView, summaryRecyclerView);
+                    fetchAndDisplayStats(selectedMonthYear);
 
                 })
                 .setNegativeButton("Cancel", null)

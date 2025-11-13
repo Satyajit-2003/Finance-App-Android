@@ -107,7 +107,8 @@
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:textColor="@color/white"
-                android:dropDownHeight="105dp" />
+                android:dropDownHeight="105dp"
+                android:singleLine="true" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- 4-Digit Entry Field -->

@@ -150,6 +150,7 @@ public class EditTransactionDialog extends DialogFragment {
 
         // Save logic
         buttonSave.setOnClickListener(v -> {
+            buttonSave.setEnabled(false);
             String amountStrTemp = Objects.requireNonNull(inputAmount.getText()).toString();
             String friendSplitStrTemp = Objects.requireNonNull(inputFriendSplit.getText()).toString();
             double amount, friendSplit;
@@ -173,6 +174,7 @@ public class EditTransactionDialog extends DialogFragment {
 
 
             if (friendSplit > amount) {
+                buttonSave.setEnabled(true);
                 Toast.makeText(getContext(), "Friend Split can't exceed Amount", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -200,6 +202,7 @@ public class EditTransactionDialog extends DialogFragment {
 
             if (updates.isEmpty()) {
                 dismiss();
+                Toast.makeText(requireContext(), "Nothing to update!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -224,12 +227,14 @@ public class EditTransactionDialog extends DialogFragment {
                         Toast.makeText(requireContext(), "Update Success (" + response.code() + "): " + response.message(), Toast.LENGTH_SHORT).show();
                         dismiss();
                     } else {
+                        buttonSave.setEnabled(true);
                         Toast.makeText(requireContext(), "Update Error (" + response.code() + "): " + response.message(), Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<BaseResponse<Void>> call, @NonNull Throwable t) {
+                    buttonSave.setEnabled(true);
                     Toast.makeText(requireContext(), "Update Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });

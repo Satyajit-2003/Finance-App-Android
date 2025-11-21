@@ -131,6 +131,7 @@ public class AddTransactionDialog extends DialogFragment {
         cancelButton.setOnClickListener(v -> dismiss());
 
         saveButton.setOnClickListener(v -> {
+            saveButton.setEnabled(false);
             String amountStr = Objects.requireNonNull(inputAmount.getText()).toString().trim();
             String typeStr = categoryDropdown.getText().toString().trim();
             String splitStr = Objects.requireNonNull(inputFriendSplit.getText()).toString().trim();
@@ -140,6 +141,7 @@ public class AddTransactionDialog extends DialogFragment {
 
             if (TextUtils.isEmpty(amountStr) || TextUtils.isEmpty(typeStr)) {
                 Toast.makeText(requireContext(), "Amount and Category are required", Toast.LENGTH_SHORT).show();
+                saveButton.setEnabled(true);
                 return;
             }
 
@@ -181,12 +183,14 @@ public class AddTransactionDialog extends DialogFragment {
                         dismiss();
                     } else {
                         String msg = response.body() != null ? response.body().message : response.message();
+                        saveButton.setEnabled(true);
                         Toast.makeText(requireContext(), "Failed to Add Transaction \n" + msg, Toast.LENGTH_LONG).show();
                     }
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<BaseResponse<AddTransactionResponse>> call, @NonNull Throwable t) {
+                    saveButton.setEnabled(true);
                     Toast.makeText(requireContext(), "Failed to Add Transaction\n Network Error", Toast.LENGTH_LONG).show();
                 }
             });

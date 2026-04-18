@@ -23,6 +23,7 @@ import com.example.spendtrackr.utils.NotificationHelper;
 import com.example.spendtrackr.utils.ApiParametersHelper;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.radiobutton.MaterialRadioButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.HashMap;
@@ -77,7 +78,7 @@ public class EditTransactionDialog extends DialogFragment {
 
         TextInputEditText inputAmount = view.findViewById(R.id.inputAmount);
         AutoCompleteTextView categoryDropdown = view.findViewById(R.id.categoryDropdown);
-        TextInputEditText inputFriendSplit = view.findViewById(R.id.inputFriendSplit);
+        TextInputEditText inputSplit = view.findViewById(R.id.inputFriendSplit);
         TextInputEditText inputNotes = view.findViewById(R.id.inputNotes);
         TextInputEditText inputAccountNumber = view.findViewById(R.id.transactionAccountNumber);
         AutoCompleteTextView transactionMethodDropdown = view.findViewById(R.id.transactionMethod);
@@ -88,6 +89,7 @@ public class EditTransactionDialog extends DialogFragment {
         MaterialButton fiftyFiftyButton = view.findViewById(R.id.fiftyFiftyButton);
         MaterialButton clearSplitButton = view.findViewById(R.id.clearButton);
         MaterialButton fullSplitButton = view.findViewById(R.id.fullSplitButton);
+        MaterialRadioButton radioFriendShare = view.findViewById(R.id.radioFriendShare);
 
 
         // Populate category dropdown
@@ -109,7 +111,7 @@ public class EditTransactionDialog extends DialogFragment {
         // Pre-fill data
         inputAmount.setText(transactionItem.amount);
         categoryDropdown.setText(transactionItem.type, false);
-        inputFriendSplit.setText((Objects.equals(transactionItem.friendSplit, "0")) ? "" : String.valueOf(transactionItem.friendSplit));
+        inputSplit.setText((Objects.equals(transactionItem.friendSplit, "0")) ? "" : String.valueOf(transactionItem.friendSplit));
         inputNotes.setText(transactionItem.notes);
         String orgAccountString = transactionItem.account;
         if (orgAccountString != null && orgAccountString.contains("-")) {
@@ -132,7 +134,7 @@ public class EditTransactionDialog extends DialogFragment {
             if (!TextUtils.isEmpty(amountStr)) {
                 try {
                     double amt = Double.parseDouble(amountStr);
-                    inputFriendSplit.setText(String.format("%.2f", amt / 2));
+                    inputSplit.setText(String.format("%.2f", amt / 2));
                 } catch (NumberFormatException ignored) {}
             }
         });
@@ -140,21 +142,21 @@ public class EditTransactionDialog extends DialogFragment {
         // Full Split Logic
         fullSplitButton.setOnClickListener(v -> {
             String amountStr = Objects.requireNonNull(inputAmount.getText()).toString();
-            inputFriendSplit.setText(amountStr);
+            inputSplit.setText(amountStr);
         });
 
         // Clear logic
         clearSplitButton.setOnClickListener(v -> {
-            inputFriendSplit.setText("");
+            inputSplit.setText("");
         });
 
         // Save logic
         buttonSave.setOnClickListener(v -> {
             buttonSave.setEnabled(false);
             String amountStrTemp = Objects.requireNonNull(inputAmount.getText()).toString();
-            String friendSplitStrTemp = Objects.requireNonNull(inputFriendSplit.getText()).toString();
-            double amount, friendSplit;
-            final String amountStr, friendSplitStr;
+            String spliterStrTemp = Objects.requireNonNull(inputSplit.getText()).toString();
+            double amount, split;
+            final String amountStr, friendSplitStr, mySplitStr;
 
             if (TextUtils.isEmpty((amountStrTemp))){
                 amount = 0;
@@ -164,18 +166,25 @@ public class EditTransactionDialog extends DialogFragment {
                 amountStr = amountStrTemp;
             }
 
-            if (TextUtils.isEmpty((friendSplitStrTemp))){
-                friendSplit = 0;
+            if (TextUtils.isEmpty((spliterStrTemp))){
+                split = 0;
                 friendSplitStr = "0";
+                mySplitStr = amountStr;
             } else {
-                friendSplit = Double.parseDouble(friendSplitStrTemp);
-                friendSplitStr = friendSplitStrTemp;
+                split = Double.parseDouble(spliterStrTemp);
+                if (! radioFriendShare.isChecked()){
+                    friendSplitStr = (amount - split) + "";
+                    mySplitStr = split + "";
+                } else {
+                    friendSplitStr = spliterStrTemp;
+                    mySplitStr = (amount - split) + "";
+                }
             }
 
 
-            if (friendSplit > amount) {
+            if (split > amount) {
                 buttonSave.setEnabled(true);
-                Toast.makeText(getContext(), "Friend Split can't exceed Amount", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Split can't exceed Amount", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -220,7 +229,7 @@ public class EditTransactionDialog extends DialogFragment {
                         transactionItem.amount = amountStr;
                         transactionItem.type = categoryDropdown.getText().toString();
                         transactionItem.friendSplit = friendSplitStr;
-                        transactionItem.amountBorne = String.valueOf(Double.parseDouble(transactionItem.amount) - friendSplit);
+                        transactionItem.amountBorne = mySplitStr;
                         transactionItem.notes = inputNotes.getText().toString();
                         transactionItem.account = accountField;
                         listener.onTransactionUpdated(transactionItem);

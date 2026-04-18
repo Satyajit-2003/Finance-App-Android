@@ -6,6 +6,7 @@ public class ApiParametersHelper {
     public static final String FIELD_FRIEND_SPLIT = "Friend Split";
     public static final String FIELD_NOTES = "Notes";
     public static final String FIELD_ACCOUNT = "Account";
+    public static final String FIELD_MERCHANT = "Merchant";
 
 
     public static final String ARG_DATE = "date";

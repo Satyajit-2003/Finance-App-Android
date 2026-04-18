@@ -15,8 +15,12 @@ import com.example.spendtrackr.api.ApiClient;
 import com.example.spendtrackr.api.ApiRetryHandler;
 import com.example.spendtrackr.api.ApiService;
 import com.example.spendtrackr.api.BaseResponse;
+import com.example.spendtrackr.utils.ApiParametersHelper;
 import com.example.spendtrackr.utils.NotificationHelper;
 import com.example.spendtrackr.utils.SharedPrefHelper;
+import com.example.spendtrackr.sms.parser.SmsModels;
+import com.example.spendtrackr.sms.parser.SmsEngine;
+import com.example.spendtrackr.sms.parser.ValidationRules;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -62,14 +66,18 @@ public class SmsReceiver extends BroadcastReceiver {
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
                     String isoDate = sdf.format(timestamp);
 
+                    // Parse and send to API
+                    parseAndSendToApi(context, messageBody, isoDate);
+
                     // Single API call with full message
-                    sendToApi(context, messageBody, isoDate);
+                    // sendToApi(context, messageBody, isoDate);
                 }
             }
         }
     }
 
 
+    // Deprecated function, to be removed
     private void sendToApi(Context context, String messageBody, String isoDate) {
         ApiService apiService = ApiClient.getApiService(context);
 
@@ -109,5 +117,62 @@ public class SmsReceiver extends BroadcastReceiver {
         });
 
 
+    }
+
+    private void parseAndSendToApi(Context context, String messageBody, String isoDate) {
+        SmsModels.TransactionInfo info = SmsEngine.getTransactionInfo(messageBody);
+        Log.d(TAG, "Parsed Info: " + info);
+
+        ValidationRules.ValidationResult validation = ValidationRules.validate(info, messageBody);
+
+        if (!validation.valid) {
+            Log.d(TAG, "SMS is not a valid transaction: " + validation.reason);
+            if (SharedPrefHelper.getShowFailureNotification(context)) {
+                NotificationHelper.showNotification(context, "SMS not transaction", validation.reason);
+            }
+            return;
+        }
+
+        Map<String, Object> body = new HashMap<>();
+        body.put(ApiParametersHelper.ARG_DATE, isoDate);
+
+        Map<String, String> transactionItem = new HashMap<>();
+        transactionItem.put(ApiParametersHelper.FIELD_AMOUNT, info.transaction.amount);
+        transactionItem.put(ApiParametersHelper.FIELD_MERCHANT, info.transaction.merchant);
+        transactionItem.put(ApiParametersHelper.FIELD_ACCOUNT,
+                info.account.type + " - " + info.account.number);
+
+        body.put(ApiParametersHelper.ARG_TRANSACTION_ITEM, transactionItem);
+        Log.d(TAG, "Sending parsed transaction: " + body);
+
+        ApiService apiService = ApiClient.getApiService(context);
+        ApiRetryHandler.enqueueWithRetry(apiService.addTransaction(body), 0,
+        new Callback<BaseResponse<AddTransactionResponse>>() {
+            @Override
+            public void onResponse(@NonNull Call<BaseResponse<AddTransactionResponse>> call,
+                                   @NonNull Response<BaseResponse<AddTransactionResponse>> response) {
+                String apiMessage = response.body() != null ? response.body().message : response.message();
+                if (response.isSuccessful() && response.body() != null && response.body().success) {
+                    Log.i(TAG, "Transaction logged successfully: " + apiMessage);
+                    if (SharedPrefHelper.getShowSuccessNotification(context)) {
+                        NotificationHelper.showNotification(context, "Transaction Logged", apiMessage);
+                    }
+                } else {
+                    Log.w(TAG, "Transaction log failed: " + apiMessage);
+                    if (SharedPrefHelper.getShowErrorNotification(context)) {
+                        NotificationHelper.showNotification(context, "Transaction Log Failed", apiMessage);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<BaseResponse<AddTransactionResponse>> call,
+                                  @NonNull Throwable t) {
+                Log.e(TAG, "API call failed: " + t.getMessage());
+                if (SharedPrefHelper.getShowErrorNotification(context)) {
+                    NotificationHelper.showNotification(context, "API Failure addTransaction", t.getMessage());
+                }
+            }
+        });
     }
 }

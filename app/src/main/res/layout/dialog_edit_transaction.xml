@@ -50,9 +50,32 @@
             android:layout_height="wrap_content" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <RadioGroup
+        android:id="@+id/splitOwnerRadioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-1dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/radioFriendShare"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/edit_dialog_friend_share"
+            android:checked="true"/>
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/radioMyShare"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:text="@string/edit_dialog_my_share"/>
+
+    </RadioGroup>
+
     <!-- 50:50 + Clear + Full -->
     <LinearLayout
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="-5dp"
         android:orientation="horizontal"
         android:gravity="start"
         android:layout_width="match_parent"
@@ -83,7 +106,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:baselineAligned="false"

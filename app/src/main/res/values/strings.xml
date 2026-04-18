@@ -61,7 +61,9 @@
     <!-- Edit Dialog Box -->
     <string name="edit_dialog_amount">Amount (₹)</string>
     <string name="edit_dialog_category">Category</string>
-    <string name="edit_dialog_friend_split">Friend Split (₹)</string>
+    <string name="edit_dialog_friend_split">Split (₹)</string>
+    <string name="edit_dialog_my_share">My Share</string>
+    <string name="edit_dialog_friend_share">Friend Share</string>
     <string name="edit_dialog_50_50">50:50</string>
     <string name="edit_dialog_clear_split">Clear</string>
     <string name="edit_dialog_notes">Notes (optional)</string>

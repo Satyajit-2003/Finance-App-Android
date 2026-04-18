@@ -23,6 +23,7 @@ import com.example.spendtrackr.utils.ApiParametersHelper;
 import com.example.spendtrackr.utils.CategoryManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.radiobutton.MaterialRadioButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.HashMap;
@@ -81,6 +82,7 @@ public class AddTransactionDialog extends DialogFragment {
         MaterialButton cancelButton = view.findViewById(R.id.cancelButton);
         MaterialButton saveButton = view.findViewById(R.id.saveButton);
         MaterialButton deleteButton = view.findViewById(R.id.deleteButton);
+        MaterialRadioButton radioFriendShare = view.findViewById(R.id.radioFriendShare);
 
         // Hide delete button (add mode)
         deleteButton.setVisibility(View.GONE);
@@ -134,15 +136,31 @@ public class AddTransactionDialog extends DialogFragment {
             saveButton.setEnabled(false);
             String amountStr = Objects.requireNonNull(inputAmount.getText()).toString().trim();
             String typeStr = categoryDropdown.getText().toString().trim();
-            String splitStr = Objects.requireNonNull(inputFriendSplit.getText()).toString().trim();
+            String tempSplitStr = Objects.requireNonNull(inputFriendSplit.getText()).toString().trim();
             String noteStr = Objects.requireNonNull(inputNotes.getText()).toString().trim();
             String methodStr = transactionMethod.getText().toString().trim();
             String accNumStr = Objects.requireNonNull(inputAccountNumber.getText()).toString().trim();
+            final String splitStr;
 
             if (TextUtils.isEmpty(amountStr) || TextUtils.isEmpty(typeStr)) {
                 Toast.makeText(requireContext(), "Amount and Category are required", Toast.LENGTH_SHORT).show();
                 saveButton.setEnabled(true);
                 return;
+            }
+
+
+            double amount = Double.parseDouble(amountStr);
+            double split = Double.parseDouble(tempSplitStr);
+            if (split > amount) {
+                Toast.makeText(requireContext(), "Split amount cannot be greater than total amount", Toast.LENGTH_SHORT).show();
+                saveButton.setEnabled(true);
+                return;
+            }
+
+            if (! radioFriendShare.isChecked() && ! TextUtils.isEmpty(tempSplitStr)) {
+                splitStr = (amount - split) + "";
+            } else {
+                splitStr = tempSplitStr;
             }
 
             Map<String, Object> body = new HashMap<>();

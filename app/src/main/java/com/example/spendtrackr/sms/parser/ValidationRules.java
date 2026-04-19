@@ -71,9 +71,6 @@ public class ValidationRules {
             return ValidationResult.fail("Missing Transaction Amount");
         if (info.account == null || info.account.type == null)
             return ValidationResult.fail("Missing Account Type");
-        if (info.account.number == null || info.account.number.isEmpty())
-            return ValidationResult.fail("Missing Account Number");
-
 
 
         return ValidationResult.ok();

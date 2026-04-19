@@ -1,6 +1,5 @@
 package com.example.spendtrackr.ui;
 
-import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
@@ -13,6 +12,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.example.spendtrackr.R;
+import com.example.spendtrackr.api.*;
+import com.example.spendtrackr.ui.calendar.CalendarPickerDialog;
 import com.example.spendtrackr.api.*;
 import com.example.spendtrackr.utils.NotificationHelper;
 
@@ -88,18 +89,9 @@ public class TransactionFragment extends Fragment implements TransactionAdapter.
     }
 
     private void showDatePicker() {
-        Calendar calendar = Calendar.getInstance();
-        try {
-            Date selectedDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(currentDate);
-            if (selectedDate != null) {
-                calendar.setTime(selectedDate);
-            }
-        } catch (Exception ignored) {
-
-        }
-        DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(), (view, year, month, day) -> {
-            calendar.set(year, month, day);
-            currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.getTime());
+        CalendarPickerDialog dialog = CalendarPickerDialog.newInstance(currentDate);
+        dialog.setOnDateSelectedListener(picked -> {
+            currentDate = picked;
             dateText.setText(currentDate);
 
             adapter = new TransactionAdapter(masterTransactions, getSheetName(currentDate), getChildFragmentManager(), this);
@@ -107,8 +99,8 @@ public class TransactionFragment extends Fragment implements TransactionAdapter.
             recyclerView.setAdapter(adapter);
 
             fetchTransactions(currentDate);
-        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-        datePickerDialog.show();
+        });
+        dialog.show(getChildFragmentManager(), "CalendarPickerDialog");
     }
 
 

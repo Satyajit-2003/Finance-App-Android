@@ -10,6 +10,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.spendtrackr.R;
 import com.example.spendtrackr.api.TransactionItem;
 import com.example.spendtrackr.utils.CategoryManager;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -55,6 +58,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         holder.amountBorne.setText(String.format(Locale.ENGLISH, "Me: ₹%s", item.amountBorne));
         holder.notes.setText(item.notes);
         holder.account.setText((item.account));
+        holder.time.setText(formatTime(item.date));
 
         holder.editButton.setOnClickListener(v -> {
             EditTransactionDialog dialog = EditTransactionDialog.newInstance(item, sheetName);
@@ -102,8 +106,18 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     }
 
 
+    private static String formatTime(String date) {
+        if (date == null || !date.contains(":")) return "";
+        try {
+            Date parsed = new SimpleDateFormat("yyyy-MM-dd:HH:mm", Locale.ENGLISH).parse(date);
+            return new SimpleDateFormat("hh:mm a", Locale.ENGLISH).format(parsed);
+        } catch (ParseException e) {
+            return "";
+        }
+    }
+
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView category, amount, friendSplit, amountBorne, notes, account;
+        TextView category, amount, friendSplit, amountBorne, notes, account, time;
         CardView cardView;
         ImageButton editButton;
 
@@ -115,6 +129,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             amountBorne = itemView.findViewById(R.id.transactionAmountBorne);
             notes = itemView.findViewById(R.id.transactionNotes);
             account = itemView.findViewById(R.id.transactionAccount);
+            time = itemView.findViewById(R.id.transactionTime);
             cardView = itemView.findViewById(R.id.cardView);
             editButton = itemView.findViewById(R.id.editButton);
         }

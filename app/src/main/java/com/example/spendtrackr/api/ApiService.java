@@ -33,6 +33,9 @@ public interface ApiService {
     @PATCH("/api/v1/transactions")
     Call<BaseResponse<Void>> updateTransaction(@Body Map<String, Object> body);
 
+    @GET("/api/v1/transactions/uncategorized")
+    Call<BaseResponse<UncategorizedTransactionsResponse>> getUncategorizedTransactions(@Query("month_year") String monthYear);
+
     @HTTP(method = "DELETE", path = "/api/v1/transactions", hasBody = true)
     Call<BaseResponse<Void>> deleteTransaction(@Body Map<String, Object> body);
 

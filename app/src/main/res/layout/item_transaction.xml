@@ -23,25 +23,42 @@
             android:layout_toStartOf="@+id/editButton"
             android:layout_marginEnd="8dp">
 
-            <!-- Category and Amount (same line) -->
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp">
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/transactionCategory"
+                <!-- Category and Amount (same line) -->
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:textSize="18sp"
-                    android:layout_marginEnd="8dp" />
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/transactionCategory"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:textSize="18sp"
+                        android:layout_marginEnd="8dp" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/transactionAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp" />
+                </LinearLayout>
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/transactionAmount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="16sp" />
+                    android:id="@+id/transactionTime"
+                    android:layout_marginTop="5dp"
+                    android:textSize="14sp"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="end" />
+
             </LinearLayout>
 
             <!-- My Share and Friend Split -->

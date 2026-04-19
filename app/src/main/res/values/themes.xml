@@ -35,4 +35,17 @@
         <item name="colorOutline">@color/md_theme_outline</item>
     </style>
 
+    <!-- Calendar text styles: white text so dates are readable over any card color -->
+    <style name="CalendarDateText" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="CalendarWeekDayText" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <style name="CalendarHeaderText" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
 </resources>

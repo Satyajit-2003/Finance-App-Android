@@ -138,9 +138,9 @@ public class SmsReceiver extends BroadcastReceiver {
 
         Map<String, String> transactionItem = new HashMap<>();
         transactionItem.put(ApiParametersHelper.FIELD_AMOUNT, info.transaction.amount);
-        transactionItem.put(ApiParametersHelper.FIELD_MERCHANT, info.transaction.merchant);
+        transactionItem.put(ApiParametersHelper.FIELD_MERCHANT, info.transaction.merchant + " - " + info.transaction.type);
         transactionItem.put(ApiParametersHelper.FIELD_ACCOUNT,
-                info.account.type + " - " + info.account.number);
+                info.account.type + " - " + (info.account.number != null ? info.account.number : "1234"));
 
         body.put(ApiParametersHelper.ARG_TRANSACTION_ITEM, transactionItem);
         Log.d(TAG, "Sending parsed transaction: " + body);

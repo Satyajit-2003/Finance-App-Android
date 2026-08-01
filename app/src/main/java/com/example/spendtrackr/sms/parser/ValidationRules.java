@@ -10,7 +10,7 @@ import java.util.List;
 public class ValidationRules {
 
     public static final List<String> INVALID_TRANSACTION_KEYWORDS = Arrays.asList(
-            "failed", "declined", "otp", "secret"
+            "failed", "declined", "otp", "secret", "upcoming", "NACH", "will be"
     );
     public static int MAX_SMS_LENGTH = 1000;
     public static int MIN_SMS_LENGTH = 20;
@@ -71,6 +71,8 @@ public class ValidationRules {
             return ValidationResult.fail("Missing Transaction Amount");
         if (info.account == null || info.account.type == null)
             return ValidationResult.fail("Missing Account Type");
+        if (info.account == null || info.account.number == null || info.account.number.isEmpty())
+            return ValidationResult.fail("Missing Account Number");
 
 
         return ValidationResult.ok();

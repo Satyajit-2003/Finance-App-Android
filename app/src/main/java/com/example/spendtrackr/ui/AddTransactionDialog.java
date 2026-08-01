@@ -26,6 +26,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.radiobutton.MaterialRadioButton;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -142,15 +144,31 @@ public class AddTransactionDialog extends DialogFragment {
             String accNumStr = Objects.requireNonNull(inputAccountNumber.getText()).toString().trim();
             final String splitStr;
 
-            if (TextUtils.isEmpty(amountStr) || TextUtils.isEmpty(typeStr)) {
-                Toast.makeText(requireContext(), "Amount and Category are required", Toast.LENGTH_SHORT).show();
+            if (TextUtils.isEmpty(amountStr)) {
+                Toast.makeText(requireContext(), "Amount is required", Toast.LENGTH_SHORT).show();
+                saveButton.setEnabled(true);
+                return;
+            }
+            if (TextUtils.isEmpty(typeStr)) {
+                Toast.makeText(requireContext(), "Category is required", Toast.LENGTH_SHORT).show();
                 saveButton.setEnabled(true);
                 return;
             }
 
+            if (TextUtils.isEmpty(tempSplitStr)){
+                tempSplitStr = "0";
+            }
 
-            double amount = Double.parseDouble(amountStr);
-            double split = Double.parseDouble(tempSplitStr);
+            final double amount;
+            final double split;
+            try {
+                amount = Double.parseDouble(amountStr);
+                split = Double.parseDouble(tempSplitStr);
+            } catch (NumberFormatException e) {
+                Toast.makeText(requireContext(), "Invalid amount value", Toast.LENGTH_SHORT).show();
+                saveButton.setEnabled(true);
+                return;
+            }
             if (split > amount) {
                 Toast.makeText(requireContext(), "Split amount cannot be greater than total amount", Toast.LENGTH_SHORT).show();
                 saveButton.setEnabled(true);
@@ -163,8 +181,13 @@ public class AddTransactionDialog extends DialogFragment {
                 splitStr = tempSplitStr;
             }
 
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(":HH:mm");
+            // Format and print
+            String formattedTime = now.format(formatter);
+
             Map<String, Object> body = new HashMap<>();
-            body.put(ApiParametersHelper.ARG_DATE, selectedDate + "T00:00:00");
+            body.put(ApiParametersHelper.ARG_DATE, selectedDate + formattedTime);
 
             Map<String, String> transactionItem = new HashMap<>();
             transactionItem.put(ApiParametersHelper.FIELD_AMOUNT, amountStr);
@@ -191,7 +214,7 @@ public class AddTransactionDialog extends DialogFragment {
                         newItem.amountBorne = String.valueOf(Double.parseDouble(amountStr) - Double.parseDouble(newItem.friendSplit));
                         newItem.notes = noteStr;
                         newItem.account = methodStr + " - " + (TextUtils.isEmpty(accNumStr) ? "1234" : accNumStr);
-                        newItem.date = selectedDate;
+                        newItem.date = selectedDate + formattedTime;
 
                         // Notify listener
                         if (listener != null) {
